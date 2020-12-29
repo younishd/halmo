@@ -14,6 +14,7 @@ local green     = string.char(27) .. '[' .. tostring(32) .. 'm'
 local yellow    = string.char(27) .. '[' .. tostring(33) .. 'm'
 
 function log.info(msg)
+    if (type(msg) == 'number') then msg = tostring(msg) end
     msg = table.explode("\n", msg)
     for _, v in pairs(msg) do
         print(green .. "[+]  " .. v .. reset)
@@ -21,6 +22,7 @@ function log.info(msg)
 end
 
 function log.error(msg)
+    if (type(msg) == 'number') then msg = tostring(msg) end
     msg = table.explode("\n", msg)
     for _, v in pairs(msg) do
         print(red .. "[-]  " .. v .. reset)
@@ -28,6 +30,7 @@ function log.error(msg)
 end
 
 function log.debug(msg)
+    if (type(msg) == 'number') then msg = tostring(msg) end
     msg = table.explode("\n", msg)
     for _, v in pairs(msg) do
         print(yellow .. "[*]  " .. v .. reset)
