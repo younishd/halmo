@@ -38,7 +38,7 @@ function Board:as(pos, color)
     assert(pos.x and pos.y)
     assert(1 <= color and color <= self.colors)
 
-    return times(Board.rotate, self.pov[color], pos)
+    return times(partial(Board.rotate, Board), self.pov[color], pos)
 end
 
 function Board:remove(pos)
@@ -86,14 +86,14 @@ function Board:generate()
     set({ x=0, y=0 }, 0)
     for i=1, self.edge do
         for j=1, i do
-            for k=0, 5 do set(times(Board.rotate, k, { x=i, y=j }), 0) end
-            for k=0, 5 do set(times(Board.rotate, k, { x=i, y=j+self.edge }), 0) end
+            for k=0, 5 do set(times(partial(Board.rotate, Board), k, { x=i, y=j }), 0) end
+            for k=0, 5 do set(times(partial(Board.rotate, Board), k, { x=i, y=j+self.edge }), 0) end
             for k=1, self.colors do set(self:as({ x=i, y=j+self.edge }, k), k) end
         end
     end
 end
 
-function Board.rotate(pos)
+function Board.static:rotate(pos)
     return {
         x = pos.x - pos.y,
         y = pos.x

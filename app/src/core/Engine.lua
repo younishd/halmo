@@ -15,16 +15,17 @@ function Engine:initialize(board, turn)
 
     self.board = board
     self.turn = turn
-    self.move = { src = 0, dst = 0, step = false }
+    self.move = { src = { x=0, y=0 }, dst = { x=0, y=0 }, step = false }
     self.winner = false
 end
 
 function Engine:move(from, to)
+    log.debug("move " .. from.x .. " " .. from.y .. " to " .. to.x .. " " .. to.y)
     -- TODO
 end
 
 function Engine:finish()
-    if self.move.src == self.move.dst then
+    if self.move.src.x == self.move.dst.x and self.move.src.y == self.move.dst.y then
         return false
     end
 
@@ -32,9 +33,7 @@ function Engine:finish()
         return false
     end
 
-    self.move.src = 0
-    self.move.dst = 0
-    self.move.step = false
+    self.move = { src = { x=0, y=0 }, dst = { x=0, y=0 }, step = false }
 
     self:calculate_winner()
     if not self:get_winner() then
@@ -45,10 +44,10 @@ function Engine:finish()
 end
 
 function Engine:reset()
+    log.debug("resetting...")
     self.board:reset()
-
     self.turn = 1
-    self.move = { src = 0, dst = 0, step = false }
+    self.move = { src = { x=0, y=0 }, dst = { x=0, y=0 }, step = false }
     self.winner = false
 end
 
