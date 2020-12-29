@@ -8,16 +8,16 @@
 
 local log = {}
 
-local reset     = string.char(27) .. '[' .. tostring(0)  .. 'm'
-local red       = string.char(27) .. '[' .. tostring(31) .. 'm'
-local green     = string.char(27) .. '[' .. tostring(32) .. 'm'
-local yellow    = string.char(27) .. '[' .. tostring(33) .. 'm'
+log.reset     = string.char(27) .. '[' .. tostring(0)  .. 'm'
+log.red       = string.char(27) .. '[' .. tostring(31) .. 'm'
+log.green     = string.char(27) .. '[' .. tostring(32) .. 'm'
+log.yellow    = string.char(27) .. '[' .. tostring(33) .. 'm'
 
 function log.info(msg)
     if (type(msg) == 'number') then msg = tostring(msg) end
     msg = table.explode("\n", msg)
     for _, v in pairs(msg) do
-        print(green .. "[+]  " .. v .. reset)
+        print(log.green .. "[+]  " .. v .. log.reset)
     end
 end
 
@@ -25,7 +25,7 @@ function log.error(msg)
     if (type(msg) == 'number') then msg = tostring(msg) end
     msg = table.explode("\n", msg)
     for _, v in pairs(msg) do
-        print(red .. "[-]  " .. v .. reset)
+        print(log.red .. "[-]  " .. v .. log.reset)
     end
 end
 
@@ -33,7 +33,7 @@ function log.debug(msg)
     if (type(msg) == 'number') then msg = tostring(msg) end
     msg = table.explode("\n", msg)
     for _, v in pairs(msg) do
-        print(yellow .. "[*]  " .. v .. reset)
+        print(log.yellow .. "[*]  " .. v .. log.reset)
     end
 end
 

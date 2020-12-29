@@ -10,7 +10,7 @@ local Engine = class('Engine')
 
 function Engine:initialize(board, turn)
     turn = turn or 1
-    assert(board:isInstanceOf(Board))
+    assert(board and board:isInstanceOf(Board))
     assert(1 <= turn and turn <= board:get_colors())
 
     self.board = board
