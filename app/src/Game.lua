@@ -11,34 +11,17 @@ local Game = class('Game')
 function Game:initialize()
     self.width = 1024
     self.height = 800
+    self.engine = Engine(Board())
+    self.board = BoardUI(self.engine.board)
+
+    self.board:register_callback('on_move', partial(self.engine.move, self.engine))
+    self.board:register_callback('on_finish', partial(self.engine.finish, self.engine))
 end
 
 function Game:load()
-    log.info([[
-
-
-                             ,,                    ,,  ,,
-    `7MMF'  `7MMF'         `7MM                    db  db
-      MM      MM             MM
-      MM      MM   ,6"Yb.    MM  `7MMpMMMb.pMMMb.  ,pW"Wq.
-      MMmmmmmmMM  8)   MM    MM    MM    MM    MM 6W'   `Wb
-      MM      MM   ,pm9MM    MM    MM    MM    MM 8M     M8
-      MM      MM  8M   MM    MM    MM    MM    MM YA.   ,A9
-    .JMML.  .JMML.`Moo9^Yo..JMML..JMML  JMML  JMML.`Ybmd9'
-
-
-    ]])
-    log.info("version: " .. version)
-    log.info("by: Younis Bensalah")
-
+    log.info("loading game...")
     love.window.setMode(self.width, self.height)
     love.window.setTitle("Halmö (" .. version .. ")")
-
-    local board = Board()
-    self.engine = Engine(board)
-    self.board = BoardUI(board)
-    self.board:register_callback('on_move', partial(self.engine.move, self.engine))
-    self.board:register_callback('on_finish', partial(self.engine.finish, self.engine))
 end
 
 function Game:update(dt)
@@ -46,6 +29,7 @@ function Game:update(dt)
 end
 
 function Game:draw()
+    self.board:draw()
 end
 
 function Game:textinput(t)
@@ -66,7 +50,7 @@ function Game:conf(t)
 end
 
 function Game:quit()
-    log.info("Bye.")
+    log.info("bye!")
     return false
 end
 
