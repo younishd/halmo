@@ -33,6 +33,12 @@ function Game:load()
 
     love.window.setMode(self.width, self.height)
     love.window.setTitle("Halmö (" .. version .. ")")
+
+    local board = Board()
+    self.engine = Engine(board)
+    self.board = BoardUI(board)
+    self.board:register_callback('on_move', partial(self.engine.move, self.engine))
+    self.board:register_callback('on_finish', partial(self.engine.finish, self.engine))
 end
 
 function Game:update(dt)
@@ -62,14 +68,6 @@ end
 function Game:quit()
     log.info("Bye.")
     return false
-end
-
-function Game:callback_move(from, to)
-    self.engine:move(from, to)
-end
-
-function Game:callback_finish()
-    self.engine:finish()
 end
 
 return Game
