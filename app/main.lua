@@ -20,6 +20,19 @@ partial                     = require 'helpers.partial'
 times                       = require 'helpers.times'
 
 Game                        = require 'Game'
-Engine                      = require 'Engine'
-Board                       = require 'Board'
-Player                      = require 'Player'
+Engine                      = require 'core.Engine'
+Board                       = require 'core.Board'
+Player                      = require 'core.Player'
+BoardUI                     = require 'ui.Board'
+
+local game = Game()
+
+function love.load() game:load() end
+function love.update(dt) game:update(dt) end
+function love.draw() game:draw() end
+function love.textinput(t) game:textinput(t) end
+function love.keypressed(key) game:keypressed(key) end
+function love.mousepressed(x, y, button) game:mousepressed(x, y, button) end
+function love.mousereleased(x, y, button) game:mousereleased(x, y, button) end
+function love.conf(t) game:conf(t) end
+function love.quit() return game:quit() end
