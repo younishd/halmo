@@ -34,6 +34,18 @@ function Board:initialize(colors, edge)
     self:generate()
 end
 
+function Board:get_2d_board()
+    t = {}
+    for _, j in kpairs(self.matrix) do
+        row = {}
+        for _, i in kpairs(j) do
+            table.append(row, i)
+        end
+        table.append(t, row)
+    end
+    return t
+end
+
 function Board:as(pos, color)
     assert(pos.x and pos.y)
     assert(1 <= color and color <= self.colors)
@@ -43,30 +55,24 @@ end
 
 function Board:remove(pos)
     assert(pos.x and pos.y)
+    assert(self.matrix[pos.y][pos.x])
 
-    idx = pos.x .. ',' .. pos.y
-    assert(self.matrix[idx])
-
-    self.matrix[idx] = 0
+    self.matrix[pos.y][pos.x] = 0
 end
 
 function Board:place(pos, color)
     assert(pos.x and pos.y)
     assert(1 <= color and color <= self.colors)
+    assert(self.matrix[pos.y][pos.x])
 
-    idx = pos.x .. ',' .. pos.y
-    assert(self.matrix[idx])
-
-    self.matrix[idx] = color
+    self.matrix[pos.y][pos.x] = color
 end
 
 function Board:get(pos)
     assert(pos.x and pos.y)
+    assert(self.matrix[pos.y][pos.x])
 
-    idx = pos.x .. ',' .. pos.y
-    assert(self.matrix[idx])
-
-    return self.matrix[idx]
+    return self.matrix[pos.y][pos.x]
 end
 
 function Board:get_colors()
@@ -81,7 +87,10 @@ end
 function Board:generate()
     log.debug("generating board...")
 
-    local set = function(pos, color) self.matrix[pos.x .. ',' .. pos.y] = color end
+    local set = function(pos, color)
+        if not self.matrix[pos.y] then self.matrix[pos.y] = {} end
+        self.matrix[pos.y][pos.x] = color
+    end
 
     set({ x=0, y=0 }, 0)
     for i=1, self.edge do

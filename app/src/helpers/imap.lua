@@ -6,12 +6,12 @@
 --
 --]]
 
-local function map(f, ...)
+local function imap(f, ...)
     local t = {}
-    for k, v in pairs(...) do
-        t[k] = f(v)
+    for _, v in ipairs(...) do
+        t[#t+1] = f(v)
     end
     return t
 end
 
-return map
+return imap
