@@ -41,6 +41,8 @@ log.info([[
 ]])
 log.info("version: " .. version)
 log.info("by: Younis Bensalah")
+log.debug(string.format("LÖVE %d.%d.%d - %s", love.getVersion()))
+log.debug(_VERSION)
 
 local game = Game()
 
@@ -51,5 +53,4 @@ function love.textinput(t) game:textinput(t) end
 function love.keypressed(key) game:keypressed(key) end
 function love.mousepressed(x, y, button) game:mousepressed(x, y, button) end
 function love.mousereleased(x, y, button) game:mousereleased(x, y, button) end
-function love.conf(t) game:conf(t) end
 function love.quit() return game:quit() end
