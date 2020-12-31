@@ -6,24 +6,7 @@
 --
 --]]
 
-package.path                = require 'path'
-version                     = require 'version'
-class                       = require 'middleclass.middleclass'
-_table                      = require 'helpers.table'
-table.explode               = _table.explode
-table.contains              = _table.contains
-table.append                = _table.append
-log                         = require 'helpers.log'
-map                         = require 'helpers.map'
-imap                        = require 'helpers.imap'
-partial                     = require 'helpers.partial'
-times                       = require 'helpers.times'
-kpairs                      = require 'helpers.kpairs'
-Game                        = require 'Game'
-Engine                      = require 'core.Engine'
-Board                       = require 'core.Board'
-Player                      = require 'core.Player'
-BoardUI                     = require 'ui.BoardUI'
+require 'env'
 
 log.info([[
 
