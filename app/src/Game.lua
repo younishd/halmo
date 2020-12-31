@@ -48,11 +48,6 @@ end
 function Game:mousereleased(x, y, button)
 end
 
-function Game:conf(t)
-    -- anti-aliasing
-    t.window.fsaa = 4
-end
-
 function Game:quit()
     log.info("bye!")
     return false
