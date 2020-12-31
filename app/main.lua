@@ -24,8 +24,7 @@ log.info([[
 ]])
 log.info("version: " .. version)
 log.info("by: Younis Bensalah")
-log.debug(string.format("LÖVE %d.%d.%d - %s", love.getVersion()))
-log.debug(_VERSION)
+log.debug(platform())
 
 local game = Game()
 
