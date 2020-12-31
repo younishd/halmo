@@ -29,7 +29,11 @@ function Game:update(dt)
 end
 
 function Game:draw()
-    self.board:draw()
+    love.graphics.setColor(1, 1, 1, 1)
+    local board = self.board:draw()
+    local x = (self.width - board:getWidth()) / 2
+    local y = (self.height - board:getHeight()) / 2
+    love.graphics.draw(board, x, y)
 end
 
 function Game:textinput(t)

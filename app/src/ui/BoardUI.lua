@@ -38,6 +38,12 @@ function BoardUI:initialize(board)
         }
     }
 
+    self.x_step = self.style.tile.width + self.style.tile.margin.x
+    self.y_step = self.style.tile.height + self.style.tile.margin.y
+    self.width = (3 * self.board.edge + 1) * self.x_step - self.style.tile.margin.x
+    self.height = (4 * self.board.edge + 1) * self.y_step - self.style.tile.margin.y
+    self.canvas = love.graphics.newCanvas(self.width, self.height)
+
     self.color_map = {
         [0] = 'empty',
         [1] = 'green',
@@ -51,30 +57,19 @@ end
 
 function BoardUI:draw()
     local board2d = self.board:get_2d_board()
-    local x_increment = self.style.tile.width + self.style.tile.margin.x
-    local y_increment = self.style.tile.height + self.style.tile.margin.y
-    local row_height = (4 * self.board.edge + 1) * y_increment - self.style.tile.margin.y
-    local y = (800 - row_height) / 2
-    log.debug("x_increment: " .. x_increment)
-    log.debug("y_increment: " .. y_increment)
-    log.debug("row_height: " .. row_height)
-    log.debug("y: " .. y)
+    local y = 0
+    self.canvas:renderTo(function() love.graphics.clear() end)
     for _, row in pairs(board2d) do
-        local row_width = #row * x_increment - self.style.tile.margin.x
-        local x = (1024 - row_width) / 2
-        log.debug("row_width: " .. row_width)
-        log.debug("x: " .. x)
+        local row_width = #row * self.x_step - self.style.tile.margin.x
+        local x = (self.width - row_width) / 2
         for _, col in pairs(row) do
-            love.graphics.draw(self.assets[self.color_map[col]], x, y, 0, 1, 1, 0, 0)
-            x = x + x_increment
+            love.graphics.setColor(1, 1, 1, 1)
+            self.canvas:renderTo(function() love.graphics.draw(self.assets[self.color_map[col]], x, y) end)
+            x = x + self.x_step
         end
-        y = y + y_increment
+        y = y + self.y_step
     end
-end
-
-function BoardUI:draw_row(row)
-    -- TODO: return drawable
-
+    return self.canvas
 end
 
 function BoardUI:register_callback(event, callback)
