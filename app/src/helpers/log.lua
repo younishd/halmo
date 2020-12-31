@@ -2,7 +2,7 @@
 --
 -- Halmö
 --
--- (c) 2015-2020 Younis Bensalah <younis.bensalah@gmail.com>
+-- (c) 2015-2021 Younis Bensalah <younis.bensalah@gmail.com>
 --
 --]]
 
@@ -45,15 +45,20 @@ end
 
 function log.info(msg)
     msg = cast_msg(msg)
-
     for _, v in pairs(msg) do
         print(green .. "[+]  " .. v .. reset)
     end
 end
 
+function log.warn(msg)
+    msg = cast_msg(msg)
+    for _, v in pairs(msg) do
+        print(yellow .. "[!]  " .. v .. reset)
+    end
+end
+
 function log.error(msg)
     msg = cast_msg(msg)
-
     for _, v in pairs(msg) do
         print(red .. "[-]  " .. v .. reset)
     end
@@ -61,9 +66,8 @@ end
 
 function log.debug(msg)
     msg = cast_msg(msg)
-
     for _, v in pairs(msg) do
-        print(yellow .. "[*]  " .. v .. reset)
+        print("[*]  " .. v)
     end
 end
 
