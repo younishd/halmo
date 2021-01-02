@@ -48,7 +48,7 @@ function BoardUI:initialize(board)
         [0] = 'empty',
         [1] = 'green',
         [2] = 'blue',
-        [3] = 'magenta',
+        [3] = 'purple',
         [4] = 'yellow',
         [5] = 'white',
         [6] = 'red'
