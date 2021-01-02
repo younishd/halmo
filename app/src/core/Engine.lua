@@ -39,7 +39,7 @@ function Engine:move(from, to)
         if Board:dist(from, to) == 1 and
                 self.current_move.src.x == self.current_move.dst.x and
                 self.current_move.src.y == self.current_move.dst.y then
-            self.update_move(from, to, true)
+            self:update_move(from, to, true)
             return true
         end
 
@@ -48,7 +48,7 @@ function Engine:move(from, to)
                 self.current_move.src.y == to.y and
                 self.current_move.dst.x == from.x and
                 self.current_move.dst.x == from.y then
-            self.update_move(from, to, false)
+            self:update_move(from, to, false)
             return true
         end
 
@@ -78,7 +78,7 @@ function Engine:move(from, to)
             if self.board:get(v) ~= 0 then return false end
         end
 
-        self.update_move(from, to, false)
+        self:update_move(from, to, false)
         return true
     end)()
 

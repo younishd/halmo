@@ -70,8 +70,9 @@ end
 
 function Board:get(pos)
     assert(pos.x and pos.y)
-
-    return self.matrix[pos.y][pos.x]
+    if self.matrix[pos.y] then
+        return self.matrix[pos.y][pos.x]
+    end
 end
 
 function Board:get_colors()
