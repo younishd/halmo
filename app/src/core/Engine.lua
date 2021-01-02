@@ -2,7 +2,7 @@
 --
 -- Halmö
 --
--- (c) 2015-2020 Younis Bensalah <younis.bensalah@gmail.com>
+-- (c) 2015-2021 Younis Bensalah <younis.bensalah@gmail.com>
 --
 --]]
 
@@ -15,17 +15,68 @@ function Engine:initialize(board, turn)
 
     self.board = board
     self.turn = turn
-    self.move = { src = { x=0, y=0 }, dst = { x=0, y=0 }, step = false }
+    self.current_move = { src = { x=0, y=0 }, dst = { x=0, y=0 }, step = false }
     self.winner = false
 end
 
 function Engine:move(from, to)
+    assert(from.x and from.y and to.x and to.y)
+
     log.debug("move " .. from.x .. " " .. from.y .. " to " .. to.x .. " " .. to.y)
-    -- TODO
+
+    local color = self.board:get(from)
+    if color ~= self.turn then return false end
+    if from.x == to.x and from.y == to.y then return false end
+
+    if self.current_move.src.x ~= self.current_move.dst.x and
+            self.current_move.src.x ~= self.current_move.dst.x and
+            self.current_move.dst.x ~= from.x and
+            self.current_move.dst.y ~= from.y then
+        return false
+    end
+
+    if Board:dist(from, to) == 1 and
+            self.current_move.src.x == self.current_move.dst.x and
+            self.current_move.src.y == self.current_move.dst.y then
+        self.board:remove(from)
+        self.board:place(to, color)
+        self.update_move(from, to, true)
+        return true
+    end
+
+    if self.current_move.step and
+            self.current_move.src.x == to.x and
+            self.current_move.src.y == to.y and
+            self.current_move.dst.x == from.x and
+            self.current_move.dst.x == from.y then
+        self.board:remove(from)
+        self.board:place(to, color)
+        self.update_move(from, to, false)
+        return true
+    end
+
+    local direction = { x = to.x - from.x, y = to.y - from.y }
+    if direction.x ~= 0 and direction.y ~= 0 and direction.x ~= direction.y then
+        return false
+    end
+    if Board:maxnorm(direction) % 2 == 1 then
+        return false
+    end
+
+    
+end
+
+function Engine:update_move(from, to, step)
+    step = step or false
+    self.current_move.src.x = from.x
+    self.current_move.src.y = from.y
+    self.current_move.dst.x = to.x
+    self.current_move.dst.y = to.y
+    self.current_move.step = step
 end
 
 function Engine:finish()
-    if self.move.src.x == self.move.dst.x and self.move.src.y == self.move.dst.y then
+    if self.current_move.src.x == self.current_move.dst.x and self.current_move.src.y == self.current_move.dst.y then
         return false
     end
 
@@ -33,7 +84,7 @@ function Engine:finish()
         return false
     end
 
-    self.move = { src = { x=0, y=0 }, dst = { x=0, y=0 }, step = false }
+    self.current_move = { src = { x=0, y=0 }, dst = { x=0, y=0 }, step = false }
 
     self:calculate_winner()
     if not self:get_winner() then
@@ -47,7 +98,7 @@ function Engine:reset()
     log.debug("resetting...")
     self.board:reset()
     self.turn = 1
-    self.move = { src = { x=0, y=0 }, dst = { x=0, y=0 }, step = false }
+    self.current_move = { src = { x=0, y=0 }, dst = { x=0, y=0 }, step = false }
     self.winner = false
 end
 

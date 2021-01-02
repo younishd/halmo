@@ -109,4 +109,12 @@ function Board.static:rotate(pos)
     }
 end
 
+function Board.static:maxnorm(pos)
+    return math.abs(math.max(pos.x, pos.y))
+end
+
+function Board.static:dist(a, b)
+    return self:maxnorm({ x = b.x - a.x, y = b.y - a.y })
+end
+
 return Board
