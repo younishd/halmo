@@ -22,48 +22,73 @@ end
 function Engine:move(from, to)
     assert(from.x and from.y and to.x and to.y)
 
-    log.debug("move " .. from.x .. " " .. from.y .. " to " .. to.x .. " " .. to.y)
+    local result = (function()
+        from.color = self.board:get(from)
+        to.color = self.board:get(to)
+        if from.color ~= self.turn then return false end
+        if to.color ~= 0 then return false end
+        if from.x == to.x and from.y == to.y then return false end
 
-    local color = self.board:get(from)
-    if color ~= self.turn then return false end
-    if from.x == to.x and from.y == to.y then return false end
+        if self.current_move.src.x ~= self.current_move.dst.x and
+                self.current_move.src.y ~= self.current_move.dst.y and
+                self.current_move.dst.x ~= from.x and
+                self.current_move.dst.y ~= from.y then
+            return false
+        end
 
-    if self.current_move.src.x ~= self.current_move.dst.x and
-            self.current_move.src.x ~= self.current_move.dst.x and
-            self.current_move.dst.x ~= from.x and
-            self.current_move.dst.y ~= from.y then
-        return false
-    end
+        if Board:dist(from, to) == 1 and
+                self.current_move.src.x == self.current_move.dst.x and
+                self.current_move.src.y == self.current_move.dst.y then
+            self.update_move(from, to, true)
+            return true
+        end
 
-    if Board:dist(from, to) == 1 and
-            self.current_move.src.x == self.current_move.dst.x and
-            self.current_move.src.y == self.current_move.dst.y then
-        self.board:remove(from)
-        self.board:place(to, color)
-        self.update_move(from, to, true)
-        return true
-    end
+        if self.current_move.step and
+                self.current_move.src.x == to.x and
+                self.current_move.src.y == to.y and
+                self.current_move.dst.x == from.x and
+                self.current_move.dst.x == from.y then
+            self.update_move(from, to, false)
+            return true
+        end
 
-    if self.current_move.step and
-            self.current_move.src.x == to.x and
-            self.current_move.src.y == to.y and
-            self.current_move.dst.x == from.x and
-            self.current_move.dst.x == from.y then
-        self.board:remove(from)
-        self.board:place(to, color)
+        local direction = { x = to.x - from.x, y = to.y - from.y }
+        if direction.x ~= 0 and direction.y ~= 0 and direction.x ~= direction.y then
+            return false
+        end
+        if Board:maxnorm(direction) % 2 == 1 then
+            return false
+        end
+
+        local center = { x = direction.x / 2, y = direction.y / 2 }
+        if self.board:get(center) == 0 then return false end
+
+        local gap_iter = function(from, to, direction, center)
+            local i = map(math.sign, direction)
+            local inc = function(v, n) return { x = v.x + n.x, y = v.y + n.y } end
+            local v = inc({ x=0, y=0 }, from)
+            return function()
+                v = inc(v, i)
+                if v.x == center.x and v.y == center.y then v = inc(v, i) end
+                if v.x == to.x and v.y == to.y then return nil end
+                return v
+            end
+        end
+        for v in gap_iter(from, to, direction, center) do
+            if self.board:get(v) ~= 0 then return false end
+        end
+
         self.update_move(from, to, false)
         return true
+    end)()
+
+    if result then
+        log.debug("move " .. from.x .. " " .. from.y .. " to " .. to.x .. " " .. to.y)
+        self.board:remove(self.current_move.src)
+        self.board:place(self.current_move.dst, self.turn)
     end
 
-    local direction = { x = to.x - from.x, y = to.y - from.y }
-    if direction.x ~= 0 and direction.y ~= 0 and direction.x ~= direction.y then
-        return false
-    end
-    if Board:maxnorm(direction) % 2 == 1 then
-        return false
-    end
-
-    
+    return result
 end
 
 function Engine:update_move(from, to, step)
