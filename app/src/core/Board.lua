@@ -70,7 +70,6 @@ end
 
 function Board:get(pos)
     assert(pos.x and pos.y)
-    assert(self.matrix[pos.y][pos.x])
 
     return self.matrix[pos.y][pos.x]
 end
