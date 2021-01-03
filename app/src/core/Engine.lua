@@ -41,8 +41,8 @@ function Engine:move(from, to)
             return false
         end
 
-        local dist = Board:maxnorm(direction)
-        if dist == 1 and
+        local distance = Board:maxnorm(direction)
+        if distance == 1 and
                 self.current_move.src.x == self.current_move.dst.x and
                 self.current_move.src.y == self.current_move.dst.y then
             self:update_move(from, to, true)
@@ -53,12 +53,12 @@ function Engine:move(from, to)
                 self.current_move.src.x == to.x and
                 self.current_move.src.y == to.y and
                 self.current_move.dst.x == from.x and
-                self.current_move.dst.x == from.y then
+                self.current_move.dst.y == from.y then
             self:update_move(from, to, false)
             return true
         end
 
-        if dist % 2 == 1 then return false end
+        if distance % 2 == 1 then return false end
 
         local pivot = { x = from.x + direction.x / 2, y = from.y + direction.y / 2 }
         assert(math.isint(pivot.x) and math.isint(pivot.y))
