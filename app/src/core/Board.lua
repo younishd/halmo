@@ -43,11 +43,14 @@ end
 function Board:get_matrix(as)
     assert(1 <= as and as <= self.colors)
 
+    local rot = function(pos) return times(partial(Board.rotate, Board), - self.pov[as] % 6, pos) end
+
     local rotated_matrix = {}
-    for y, v in kpairs(self.matrix) do
-        for x, _ in kpairs(v) do
-            if not rotated_matrix[y] then rotated_matrix[y] = {} end
-            rotated_matrix[y][x] = self:get(self:as({ x=x, y=y }, as))
+    for i, v in pairs(self.matrix) do
+        for j, w in pairs(v) do
+            local pos = rot({ x=j, y=i })
+            if not rotated_matrix[pos.y] then rotated_matrix[pos.y] = {} end
+            rotated_matrix[pos.y][pos.x] = { x=j, y=i, color=w }
         end
     end
 
@@ -55,7 +58,7 @@ function Board:get_matrix(as)
     for i, v in kpairs(rotated_matrix) do
         local r = {}
         for j, w in kpairs(v) do
-            table.append(r, { x=j, y=i, color=w })
+            table.append(r, w)
         end
         table.append(final_matrix, r)
     end

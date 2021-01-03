@@ -9,8 +9,11 @@
 local Game = class('Game')
 
 function Game:initialize()
-    self.engine = Engine(Board())
-    self.board = BoardUI(self.engine.board)
+    local players = 6
+    local pov = 1
+
+    self.engine = Engine(Board(players))
+    self.board = BoardUI(self.engine.board, pov)
 
     self.width = 1024
     self.height = 800

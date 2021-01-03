@@ -10,10 +10,13 @@ local BoardUI = class('BoardUI')
 
 BoardUI:include(mixins.hooks)
 
-function BoardUI:initialize(board)
+function BoardUI:initialize(board, pov)
     assert(board and board:isInstanceOf(Board))
+    assert(type(pov) == 'number')
+
     self.board = board
-    self.matrix = board:get_matrix(1)
+    self.matrix = board:get_matrix(pov)
+    self.pov = pov
 
     self:init_hooks({
         'on_move',
@@ -68,7 +71,7 @@ function BoardUI:initialize(board)
 end
 
 function BoardUI:update()
-    self.matrix = self.board:get_matrix(1)
+    self.matrix = self.board:get_matrix(self.pov)
     self.dirty = true
 end
 
@@ -78,10 +81,10 @@ function BoardUI:draw()
     self:clear()
 
     local y = 0
-    for i, row in pairs(self.matrix) do
+    for i, row in ipairs(self.matrix) do
         local row_width = #row * self.x_step - self.style.tile.margin.x
         local x = (self.width - row_width) / 2
-        for j, tile in pairs(row) do
+        for j, tile in ipairs(row) do
             if self.drag.active and
                     self.drag.tile.x == tile.x and
                     self.drag.tile.y == tile.y then
@@ -125,10 +128,12 @@ end
 
 function BoardUI:mousepressed(x, y, button)
     if button == 1 then
-        for i, row in pairs(self.matrix) do
-            for j, tile in pairs(row) do
+        for i, row in ipairs(self.matrix) do
+            for j, tile in ipairs(row) do
                 if tile.color ~= 0 and
                         BoardUI:radial_collision(tile.draw_x, tile.draw_y, x, y, self.style.tile.radius) then
+                    log.debug("mousepressed collision!")
+                    log.debug(tile)
                     self.dirty = true
                     self.drag.active = true
                     self.drag.tile = tile
@@ -144,9 +149,11 @@ end
 function BoardUI:mousereleased(x, y, button)
     if button == 1 then
         if not self.drag.active then return end
-        for i, row in pairs(self.matrix) do
-            for j, tile in pairs(row) do
+        for i, row in ipairs(self.matrix) do
+            for j, tile in ipairs(row) do
                 if BoardUI:radial_collision(tile.draw_x, tile.draw_y, x, y, self.style.tile.radius) then
+                    log.debug("mousereleased collision!")
+                    log.debug(tile)
                     self.dirty = true
                     self.drag.active = false
                     if self.drag.tile.x == tile.x and self.drag.tile.y == tile.y then return false end
@@ -155,6 +162,8 @@ function BoardUI:mousereleased(x, y, button)
                 end
             end
         end
+    elseif button == 2 then
+        self:notify_hooks('on_finish')
     end
 end
 
