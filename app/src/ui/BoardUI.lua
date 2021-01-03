@@ -8,14 +8,17 @@
 
 local BoardUI = class('BoardUI')
 
+BoardUI:include(mixins.hooks)
+
 function BoardUI:initialize(board)
     assert(board and board:isInstanceOf(Board))
     self.board = board
+    self.matrix = board:get_matrix(1)
 
-    self.callbacks = {
-        on_move = {},
-        on_finish = {}
-    }
+    self:init_hooks({
+        'on_move',
+        'on_finish'
+    })
 
     self.assets = {
         blue = love.graphics.newImage('assets/blue.png'),
@@ -44,6 +47,7 @@ function BoardUI:initialize(board)
     self.width = (3 * self.board.edge + 1) * self.x_step - self.style.tile.margin.x
     self.height = (4 * self.board.edge + 1) * self.y_step - self.style.tile.margin.y
     self.canvas = love.graphics.newCanvas(self.width, self.height)
+    self.dirty = true
 
     self.color_map = {
         [0] = 'empty',
@@ -57,47 +61,63 @@ function BoardUI:initialize(board)
 
     self.drag = {
         active = false,
-        tile = false,
+        tile = {},
         x = 0,
         y = 0
     }
-    self.saved_tiles = {}
+end
+
+function BoardUI:update()
+    self.matrix = self.board:get_matrix(1)
+    self.dirty = true
 end
 
 function BoardUI:draw()
-    local board2d = self.board:get_2d_board()
+    if not self.dirty then return self.canvas end
+
+    self:clear()
 
     local y = 0
-    self.canvas:renderTo(function() love.graphics.clear() end)
-    for i, row in pairs(board2d) do
+    for i, row in pairs(self.matrix) do
         local row_width = #row * self.x_step - self.style.tile.margin.x
         local x = (self.width - row_width) / 2
         for j, tile in pairs(row) do
-            if not (self.drag.active and self.drag.tile.x == tile.x and self.drag.tile.y == tile.y) then
-                love.graphics.setColor(1, 1, 1, 1)
-                self.canvas:renderTo(function() love.graphics.draw(self.assets[self.color_map[tile.color]], x, y) end)
-                self:save_tile(x, y, tile)
-                x = x + self.x_step
+            if self.drag.active and
+                    self.drag.tile.x == tile.x and
+                    self.drag.tile.y == tile.y then
+                self:draw_tile(x, y, 0)
+            else
+                self:draw_tile(x, y, tile.color)
             end
+            self.matrix[i][j].draw_x = x
+            self.matrix[i][j].draw_y = y
+            if self.drag.active then
+                self:draw_tile(
+                        self.drag.x - self.style.tile.radius,
+                        self.drag.y - self.style.tile.radius,
+                        self.drag.tile.color)
+            end
+            x = x + self.x_step
         end
         y = y + self.y_step
     end
 
-    if self.drag.active then
-        love.graphics.setColor(1, 1, 1, 1)
-        self.canvas:renderTo(function() love.graphics.draw(self.assets[self.color_map[self.drag.tile.color]], self.drag.x - self.style.tile.radius, self.drag.y - self.style.tile.radius) end)
-    end
-
+    self.dirty = false
     return self.canvas
 end
 
-function BoardUI:save_tile(x, y, tile)
-    if not self.saved_tiles[x] then self.saved_tiles[x] = {} end
-    self.saved_tiles[x][y] = tile
+function BoardUI:draw_tile(x, y, color)
+    love.graphics.setColor(1, 1, 1, 1)
+    self.canvas:renderTo(function() love.graphics.draw(self.assets[self.color_map[color]], x, y) end)
+end
+
+function BoardUI:clear()
+    self.canvas:renderTo(function() love.graphics.clear() end)
 end
 
 function BoardUI:update_mouse(x, y)
     if self.drag.active then
+        self.dirty = true
         self.drag.x = x
         self.drag.y = y
     end
@@ -105,10 +125,12 @@ end
 
 function BoardUI:mousepressed(x, y, button)
     if button == 1 then
-        for xx, v in pairs(self.saved_tiles) do
-            for yy, tile in pairs(v) do
+        for i, row in pairs(self.matrix) do
+            for j, tile in pairs(row) do
                 if tile.color ~= 0 and
-                        BoardUI:radial_collision(xx, yy, x, y, self.style.tile.radius) then
+                        BoardUI:radial_collision(tile.draw_x, tile.draw_y, x, y, self.style.tile.radius) then
+                    log.debug("collision!")
+                    self.dirty = true
                     self.drag.active = true
                     self.drag.tile = tile
                     self.drag.x = x
@@ -123,12 +145,14 @@ end
 function BoardUI:mousereleased(x, y, button)
     if button == 1 then
         if not self.drag.active then return end
-        for xx, v in pairs(self.saved_tiles) do
-            for yy, tile in pairs(v) do
-                if BoardUI:radial_collision(xx, yy, x, y, self.style.tile.radius) then
+        for i, row in pairs(self.matrix) do
+            for j, tile in pairs(row) do
+                if BoardUI:radial_collision(tile.draw_x, tile.draw_y, x, y, self.style.tile.radius) then
+                    log.debug("collision!")
+                    self.dirty = true
                     self.drag.active = false
                     if self.drag.tile.x == tile.x and self.drag.tile.y == tile.y then return false end
-                    self:notify_callback('on_move', self.drag.tile, tile)
+                    self:notify_hooks('on_move', self.drag.tile, tile)
                     return
                 end
             end
@@ -136,22 +160,10 @@ function BoardUI:mousereleased(x, y, button)
     end
 end
 
-function BoardUI.static:radial_collision(xx, yy, x, y, r)
-    x = x - xx - r
-    y = y - yy - r
+function BoardUI.static:radial_collision(mouse_x, mouse_y, x, y, r)
+    x = x - mouse_x - r
+    y = y - mouse_y - r
     return x * x + y * y <= r * r
-end
-
-function BoardUI:register_callback(event, callback)
-    assert(self.callbacks[event])
-    table.append(self.callbacks[event], callback)
-end
-
-function BoardUI:notify_callback(event, ...)
-    assert(self.callbacks[event])
-    for _, f in pairs(self.callbacks[event]) do
-        f(...)
-    end
 end
 
 return BoardUI

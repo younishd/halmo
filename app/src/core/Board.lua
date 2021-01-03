@@ -8,6 +8,8 @@
 
 local Board = class('Board')
 
+Board:include(mixins.hooks)
+
 function Board:initialize(colors, edge)
     colors = colors or 2
     edge = edge or 4
@@ -18,6 +20,10 @@ function Board:initialize(colors, edge)
     self.matrix = {}
     self.colors = colors
     self.edge = edge
+
+    self:init_hooks({
+        'on_update'
+    })
 
     if colors == 2 then
         self.pov = { [1] = 0, [2] = 3 }
@@ -34,16 +40,26 @@ function Board:initialize(colors, edge)
     self:generate()
 end
 
-function Board:get_2d_board()
-    local t = {}
-    for i, v in kpairs(self.matrix) do
+function Board:get_matrix(as)
+    assert(1 <= as and as <= self.colors)
+
+    local rotated_matrix = {}
+    for y, v in kpairs(self.matrix) do
+        for x, _ in kpairs(v) do
+            if not rotated_matrix[y] then rotated_matrix[y] = {} end
+            rotated_matrix[y][x] = self:get(self:as({ x=x, y=y }, as))
+        end
+    end
+
+    local final_matrix = {}
+    for i, v in kpairs(rotated_matrix) do
         local r = {}
         for j, w in kpairs(v) do
             table.append(r, { x=j, y=i, color=w })
         end
-        table.append(t, r)
+        table.append(final_matrix, r)
     end
-    return t
+    return final_matrix
 end
 
 function Board:as(pos, color)
@@ -58,6 +74,8 @@ function Board:remove(pos)
     assert(self.matrix[pos.y][pos.x])
 
     self.matrix[pos.y][pos.x] = 0
+
+    self:notify_hooks('on_update')
 end
 
 function Board:place(pos, color)
@@ -66,6 +84,8 @@ function Board:place(pos, color)
     assert(self.matrix[pos.y][pos.x])
 
     self.matrix[pos.y][pos.x] = color
+
+    self:notify_hooks('on_update')
 end
 
 function Board:get(pos)
@@ -82,6 +102,8 @@ end
 function Board:reset()
     self.matrix = {}
     self:generate()
+
+    self:notify_hooks('on_update')
 end
 
 function Board:generate()

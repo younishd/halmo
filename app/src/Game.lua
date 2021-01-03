@@ -19,8 +19,9 @@ function Game:initialize()
         board = { x=0, y=0 }
     }
 
-    self.board:register_callback('on_move', partial(self.engine.move, self.engine))
-    self.board:register_callback('on_finish', partial(self.engine.finish, self.engine))
+    self.engine.board:register_hooks('on_update', partial(self.board.update, self.board))
+    self.board:register_hooks('on_move', partial(self.engine.move, self.engine))
+    self.board:register_hooks('on_finish', partial(self.engine.finish, self.engine))
 end
 
 function Game:load()
