@@ -58,8 +58,6 @@ function Engine:move(from, to)
             return true
         end
 
-        log.debug(self.current_move)
-
         if distance % 2 == 1 then return false end
 
         local pivot = { x = from.x + direction.x / 2, y = from.y + direction.y / 2 }
@@ -90,9 +88,9 @@ function Engine:move(from, to)
         log.warn(string.format("invalid move %d %d to %d %d", from.x, from.y, to.x, to.y))
         return false
     end
-    log.debug(string.format("move %d %d to %d %d", from.x, from.y, to.x, to.y))
-    self.board:remove(self.current_move.src)
-    self.board:place(self.current_move.dst, self.turn)
+    log.info(string.format("move %d %d to %d %d", from.x, from.y, to.x, to.y))
+    self.board:remove(from)
+    self.board:place(to, self.turn)
     return true
 end
 
