@@ -29,6 +29,11 @@ function Engine:move(from, to)
         if to.color ~= 0 then return false end
         if from.x == to.x and from.y == to.y then return false end
 
+        local direction = { x = to.x - from.x, y = to.y - from.y }
+        log.debug(string.format("direction: %d %d", direction.x, direction.y))
+
+        if direction.x ~= 0 and direction.y ~= 0 and direction.x ~= direction.y then return false end
+
         if self.current_move.src.x ~= self.current_move.dst.x and
                 self.current_move.src.y ~= self.current_move.dst.y and
                 self.current_move.dst.x ~= from.x and
@@ -36,7 +41,8 @@ function Engine:move(from, to)
             return false
         end
 
-        if Board:dist(from, to) == 1 and
+        local dist = Board:maxnorm(direction)
+        if dist == 1 and
                 self.current_move.src.x == self.current_move.dst.x and
                 self.current_move.src.y == self.current_move.dst.y then
             self:update_move(from, to, true)
@@ -52,13 +58,10 @@ function Engine:move(from, to)
             return true
         end
 
-        local direction = { x = to.x - from.x, y = to.y - from.y }
-        log.debug(string.format("direction: %d %d", direction.x, direction.y))
-
-        if direction.x ~= 0 and direction.y ~= 0 and direction.x ~= direction.y then return false end
-        if Board:maxnorm(direction) % 2 == 1 then return false end
+        if dist % 2 == 1 then return false end
 
         local pivot = { x = from.x + direction.x / 2, y = from.y + direction.y / 2 }
+        assert(math.isint(pivot.x) and math.isint(pivot.y))
         log.debug(string.format("pivot: %d %d", pivot.x, pivot.y))
         if self.board:get(pivot) == 0 then return false end
 

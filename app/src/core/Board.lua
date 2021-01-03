@@ -110,7 +110,7 @@ function Board.static:rotate(pos)
 end
 
 function Board.static:maxnorm(pos)
-    return math.abs(math.max(pos.x, pos.y))
+    return math.max(math.abs(pos.x), math.abs(pos.y))
 end
 
 function Board.static:dist(a, b)

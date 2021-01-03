@@ -66,23 +66,26 @@ end
 
 function BoardUI:draw()
     local board2d = self.board:get_2d_board()
+
     local y = 0
     self.canvas:renderTo(function() love.graphics.clear() end)
     for i, row in pairs(board2d) do
         local row_width = #row * self.x_step - self.style.tile.margin.x
         local x = (self.width - row_width) / 2
         for j, tile in pairs(row) do
-            love.graphics.setColor(1, 1, 1, 1)
-            self.canvas:renderTo(function() love.graphics.draw(self.assets[self.color_map[tile.color]], x, y) end)
-            self:save_tile(x, y, tile)
-            x = x + self.x_step
+            if not (self.drag.active and self.drag.tile.x == tile.x and self.drag.tile.y == tile.y) then
+                love.graphics.setColor(1, 1, 1, 1)
+                self.canvas:renderTo(function() love.graphics.draw(self.assets[self.color_map[tile.color]], x, y) end)
+                self:save_tile(x, y, tile)
+                x = x + self.x_step
+            end
         end
         y = y + self.y_step
     end
 
     if self.drag.active then
         love.graphics.setColor(1, 1, 1, 1)
-        self.canvas:renderTo(function() love.graphics.draw(self.assets[self.color_map[self.drag.tile.color]], self.drag.x, self.drag.y) end)
+        self.canvas:renderTo(function() love.graphics.draw(self.assets[self.color_map[self.drag.tile.color]], self.drag.x - self.style.tile.radius, self.drag.y - self.style.tile.radius) end)
     end
 
     return self.canvas
@@ -104,8 +107,8 @@ function BoardUI:mousepressed(x, y, button)
     if button == 1 then
         for xx, v in pairs(self.saved_tiles) do
             for yy, tile in pairs(v) do
-                if BoardUI:radial_collision(xx, yy, x, y, self.style.tile.radius) then
-                    log.debug("collision!")
+                if tile.color ~= 0 and
+                        BoardUI:radial_collision(xx, yy, x, y, self.style.tile.radius) then
                     self.drag.active = true
                     self.drag.tile = tile
                     self.drag.x = x
@@ -120,11 +123,9 @@ end
 function BoardUI:mousereleased(x, y, button)
     if button == 1 then
         if not self.drag.active then return end
-
         for xx, v in pairs(self.saved_tiles) do
             for yy, tile in pairs(v) do
                 if BoardUI:radial_collision(xx, yy, x, y, self.style.tile.radius) then
-                    log.debug("collision!")
                     self.drag.active = false
                     if self.drag.tile.x == tile.x and self.drag.tile.y == tile.y then return false end
                     self:notify_callback('on_move', self.drag.tile, tile)
