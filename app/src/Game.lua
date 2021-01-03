@@ -9,10 +9,15 @@
 local Game = class('Game')
 
 function Game:initialize()
-    self.width = 1024
-    self.height = 800
     self.engine = Engine(Board())
     self.board = BoardUI(self.engine.board)
+
+    self.width = 1024
+    self.height = 800
+
+    self.positions = {
+        board = { x=0, y=0 }
+    }
 
     self.board:register_callback('on_move', partial(self.engine.move, self.engine))
     self.board:register_callback('on_finish', partial(self.engine.finish, self.engine))
@@ -27,14 +32,15 @@ end
 
 function Game:update(dt)
     local x, y = love.mouse.getPosition()
+    self.board:update_mouse(x - self.positions.board.x, y - self.positions.board.y)
 end
 
 function Game:draw()
     local board = self.board:draw()
-    local x = (self.width - board:getWidth()) / 2
-    local y = (self.height - board:getHeight()) / 2
+    self.positions.board.x = (self.width - board:getWidth()) / 2
+    self.positions.board.y = (self.height - board:getHeight()) / 2
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(board, x, y)
+    love.graphics.draw(board, self.positions.board.x, self.positions.board.y)
 end
 
 function Game:textinput(t)
@@ -44,9 +50,19 @@ function Game:keypressed(key)
 end
 
 function Game:mousepressed(x, y, button)
+    if button == 1 or button == 'l' then
+        self.board:mousepressed(x - self.positions.board.x, y - self.positions.board.y, 1)
+    elseif button == 2 or button == 'r' then
+        self.board:mousepressed(x - self.positions.board.x, y - self.positions.board.y, 2)
+    end
 end
 
 function Game:mousereleased(x, y, button)
+    if button == 1 or button == 'l' then
+        self.board:mousereleased(x - self.positions.board.x, y - self.positions.board.y, 1)
+    elseif button == 2 or button == 'r' then
+        self.board:mousereleased(x - self.positions.board.x, y - self.positions.board.y, 2)
+    end
 end
 
 function Game:quit()

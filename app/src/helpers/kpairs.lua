@@ -7,14 +7,14 @@
 --]]
 
 local function kpairs(t, f)
-    local a = {}
-    for n in pairs(t) do table.insert(a, n) end
-    table.sort(a, f)
+    local keys = {}
+    for k in pairs(t) do table.insert(keys, k) end
+    table.sort(keys, f)
     local i = 0
     return function()
         i = i + 1
-        if a[i] == nil then return nil end
-        return a[i], t[a[i]]
+        if keys[i] == nil then return nil end
+        return keys[i], t[keys[i]]
     end
 end
 

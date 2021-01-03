@@ -35,13 +35,13 @@ function Board:initialize(colors, edge)
 end
 
 function Board:get_2d_board()
-    t = {}
-    for _, j in kpairs(self.matrix) do
-        row = {}
-        for _, i in kpairs(j) do
-            table.append(row, i)
+    local t = {}
+    for i, v in kpairs(self.matrix) do
+        local r = {}
+        for j, w in kpairs(v) do
+            table.append(r, { x=j, y=i, color=w })
         end
-        table.append(t, row)
+        table.append(t, r)
     end
     return t
 end
