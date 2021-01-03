@@ -129,7 +129,6 @@ function BoardUI:mousepressed(x, y, button)
             for j, tile in pairs(row) do
                 if tile.color ~= 0 and
                         BoardUI:radial_collision(tile.draw_x, tile.draw_y, x, y, self.style.tile.radius) then
-                    log.debug("collision!")
                     self.dirty = true
                     self.drag.active = true
                     self.drag.tile = tile
@@ -148,7 +147,6 @@ function BoardUI:mousereleased(x, y, button)
         for i, row in pairs(self.matrix) do
             for j, tile in pairs(row) do
                 if BoardUI:radial_collision(tile.draw_x, tile.draw_y, x, y, self.style.tile.radius) then
-                    log.debug("collision!")
                     self.dirty = true
                     self.drag.active = false
                     if self.drag.tile.x == tile.x and self.drag.tile.y == tile.y then return false end

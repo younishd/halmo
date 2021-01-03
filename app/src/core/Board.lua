@@ -107,7 +107,7 @@ function Board:reset()
 end
 
 function Board:generate()
-    log.debug("generating board...")
+    log.info(string.format("generating %d,%d-board...", self.edge, self.colors))
 
     local set = function(pos, color)
         if not self.matrix[pos.y] then self.matrix[pos.y] = {} end
