@@ -53,28 +53,27 @@ function Engine:move(from, to)
         end
 
         local direction = { x = to.x - from.x, y = to.y - from.y }
-        if direction.x ~= 0 and direction.y ~= 0 and direction.x ~= direction.y then
-            return false
-        end
-        if Board:maxnorm(direction) % 2 == 1 then
-            return false
-        end
+        log.debug(string.format("direction: %d %d", direction.x, direction.y))
 
-        local center = { x = direction.x / 2, y = direction.y / 2 }
-        if self.board:get(center) == 0 then return false end
+        if direction.x ~= 0 and direction.y ~= 0 and direction.x ~= direction.y then return false end
+        if Board:maxnorm(direction) % 2 == 1 then return false end
 
-        local gap_iter = function(from, to, direction, center)
+        local pivot = { x = from.x + direction.x / 2, y = from.y + direction.y / 2 }
+        log.debug(string.format("pivot: %d %d", pivot.x, pivot.y))
+        if self.board:get(pivot) == 0 then return false end
+
+        local gap_iter = function(from, to, direction, pivot)
             local i = map(math.sign, direction)
             local inc = function(v, n) return { x = v.x + n.x, y = v.y + n.y } end
             local v = inc({ x=0, y=0 }, from)
             return function()
                 v = inc(v, i)
-                if v.x == center.x and v.y == center.y then v = inc(v, i) end
+                if v.x == pivot.x and v.y == pivot.y then v = inc(v, i) end
                 if v.x == to.x and v.y == to.y then return nil end
                 return v
             end
         end
-        for v in gap_iter(from, to, direction, center) do
+        for v in gap_iter(from, to, direction, pivot) do
             if self.board:get(v) ~= 0 then return false end
         end
 
@@ -82,13 +81,14 @@ function Engine:move(from, to)
         return true
     end)()
 
-    if result then
-        log.debug("move " .. from.x .. " " .. from.y .. " to " .. to.x .. " " .. to.y)
-        self.board:remove(self.current_move.src)
-        self.board:place(self.current_move.dst, self.turn)
+    if not result then
+        log.warn(string.format("invalid move %d %d to %d %d", from.x, from.y, to.x, to.y))
+        return false
     end
-
-    return result
+    log.debug(string.format("move %d %d to %d %d", from.x, from.y, to.x, to.y))
+    self.board:remove(self.current_move.src)
+    self.board:place(self.current_move.dst, self.turn)
+    return true
 end
 
 function Engine:update_move(from, to, step)
