@@ -9,7 +9,7 @@
 local Game = class('Game')
 
 function Game:initialize()
-    local players = 6
+    local players = 3
     local pov = 1
 
     self.engine = Engine(Board(players))
