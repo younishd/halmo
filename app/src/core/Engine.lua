@@ -58,6 +58,8 @@ function Engine:move(from, to)
             return true
         end
 
+        log.debug(self.current_move)
+
         if distance % 2 == 1 then return false end
 
         local pivot = { x = from.x + direction.x / 2, y = from.y + direction.y / 2 }
@@ -95,9 +97,11 @@ function Engine:move(from, to)
 end
 
 function Engine:update_move(from, to, step)
-    step = step or false
-    self.current_move.src.x = from.x
-    self.current_move.src.y = from.y
+    if self.current_move.src.x == self.current_move.dst.x and
+            self.current_move.src.y == self.current_move.dst.y then
+        self.current_move.src.x = from.x
+        self.current_move.src.y = from.y
+    end
     self.current_move.dst.x = to.x
     self.current_move.dst.y = to.y
     self.current_move.step = step
