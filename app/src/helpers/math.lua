@@ -14,4 +14,9 @@ function _math.sign(n)
     else return 0 end
 end
 
+function _math.isint(n)
+    return n == math.floor(n)
+end
+
+
 return _math

@@ -8,6 +8,7 @@ table.contains              = _table.contains
 table.append                = _table.append
 local _math                 = require 'helpers.math'
 math.sign                   = _math.sign
+math.isint                  = _math.isint
 log                         = require 'helpers.log'
 map                         = require 'helpers.map'
 imap                        = require 'helpers.imap'
