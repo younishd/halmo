@@ -6,9 +6,9 @@
 --
 --]]
 
-local function partial(f, arg)
+local function partial(f, a)
     return function(...)
-        return f(arg, ...)
+        return f(a, ...)
     end
 end
 
