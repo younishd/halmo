@@ -142,7 +142,7 @@ end
 
 function Engine:next_turn()
     self.turn = 1 + self.turn % self.board:get_colors()
-    log.debug("turn: " .. self.turn)
+    log.debug(string.format("turn: %d", self.turn))
 end
 
 return Engine

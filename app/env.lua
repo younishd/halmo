@@ -28,5 +28,18 @@ kpairs                      = require 'helpers.kpairs'
 Game                        = require 'Game'
 Engine                      = require 'core.Engine'
 Board                       = require 'core.Board'
-Player                      = require 'core.Player'
 BoardUI                     = require 'ui.BoardUI'
+logo                        = function() log.info([[
+
+
+                             ,,                    ,,  ,,
+    `7MMF'  `7MMF'         `7MM                    db  db
+      MM      MM             MM
+      MM      MM   ,6"Yb.    MM  `7MMpMMMb.pMMMb.  ,pW"Wq.
+      MMmmmmmmMM  8)   MM    MM    MM    MM    MM 6W'   `Wb
+      MM      MM   ,pm9MM    MM    MM    MM    MM 8M     M8
+      MM      MM  8M   MM    MM    MM    MM    MM YA.   ,A9
+    .JMML.  .JMML.`Moo9^Yo..JMML..JMML  JMML  JMML.`Ybmd9'
+
+
+]]) end
