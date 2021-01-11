@@ -8,7 +8,7 @@
 
 package.path                = package.path .. ';src/?.lua;lib/?.lua'
 version                     = (function() for v in io.lines('VERSION') do return v end end)()
-platform                    = function() return string.format("%s | %s | %s\n%s %s | %s", love.system.getOS(), _VERSION, string.format("LÖVE %d.%d.%d (%s)", love.getVersion()), ({love.graphics.getRendererInfo()})[1], ({love.graphics.getRendererInfo()})[2], ({love.graphics.getRendererInfo()})[4]) end
+platform                    = function() return string.format("platform: %s | %s | %s | %s %s | %s", love.system.getOS(), _VERSION, string.format("LÖVE %d.%d.%d (%s)", love.getVersion()), ({love.graphics.getRendererInfo()})[1], ({love.graphics.getRendererInfo()})[2], ({love.graphics.getRendererInfo()})[4]) end
 class                       = require 'middleclass.middleclass'
 local _table                = require 'helpers.table'
 table.explode               = _table.explode

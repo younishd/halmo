@@ -9,16 +9,30 @@
 
 import os
 import sys
+import platform
 import logging
 import argparse
 import socket
-import socketserver
+from socketserver import ThreadingTCPServer, BaseRequestHandler
 import threading
 from struct import *
 from binascii import *
 from hashlib import *
 import lupa
 from lupa import LuaRuntime
+
+class Player:
+    def __init__(self, id):
+        self.name = ""
+        self.id = id
+        self.locks = {}
+        self.locks['self'] = threading.Lock()
+
+    def set_name(self, name):
+        with self.locks['self']:
+            old_name = self.name
+            self.name = name
+            log.debug("player <{}> changed name from <{}> to <{}>".format(self.id, old_name, self.name))
 
 class Game:
     def __init__(self, players):
@@ -38,6 +52,17 @@ class Room:
         self.capacity = capacity
         self.owner = owner
         self.game = None
+        self.players = set()
+        self.locks = {}
+        self.locks['players'] = threading.Lock()
+
+    def join(self, player):
+        with self.locks['players']:
+            if player.id in self.players:
+                log.warning("player <{}> already in room <{}>".format(player.name, self.name))
+                return False
+            self.players.add(player)
+            log.info("<{}> joined room <{}>".format(player.name, self.name))
 
 class Lobby:
     def __init__(self):
@@ -49,18 +74,40 @@ class Lobby:
         self.locks['players'] = threading.Lock()
         self.locks['callbacks'] = threading.Lock()
 
-class ClientHandler(socketserver.BaseRequestHandler):
+        self.player_counter = 1
+
+    def join(self, player):
+        with self.locks['players']:
+            player.set_name("Player " + str(self.player_counter))
+            self.player_counter = self.player_counter + 1
+            self.players[player.id] = player
+            log.info("<{}> joined the lobby".format(player.name))
+
+    def add_room(self, room):
+        with self.locks['rooms']:
+            self.rooms[room.name] = room
+            log.debug("added room <{}> to lobby".format(room.name))
+
+class ClientHandler(BaseRequestHandler):
     def setup(self):
         pass
 
     def handle(self):
-        log.info("client connected: {}".format(self.request.getpeername()))
+        lobby = self.server.lobby
+        host, port = self.client_address
+        log.info("client connected: {}:{}".format(host, port))
+
+        player = Player(sha1("{}:{}".format(host, port).encode()).hexdigest())
+        lobby.join(player)
+        room = Room("Room 1", 16, player)
+        lobby.add_room(room)
+        room.join(player)
+
+        while True:
+            pass
 
     def finish(self):
         log.info("client disconnected: {}".format(self.request.getpeername()))
-
-class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-    allow_reuse_address = True
 
 def foo():
     log.debug("foo()")
@@ -82,26 +129,33 @@ def main():
     global log
     log = logging.getLogger("main")
 
-    log.info("initializing Lua runtime...")
     global lua
     lua = LuaRuntime(unpack_returned_tuples=True)
     lua.execute("package.path = package.path .. ';../src/?.lua;../lib/?.lua'")
     lua.execute("require 'env'")
     lua.execute("log = python.eval('logging.getLogger(\"lua\")')")
-    lua.execute("logo()")
 
-    parser = argparse.ArgumentParser(description="Halmö dedicated server")
+    parser = argparse.ArgumentParser(description="Halmö dedicated server", prog='halmo-server')
     parser.add_argument('host')
     parser.add_argument('port', type=int)
+    parser.add_argument('--version', action='version', version="%(prog)s " + lua.eval("version"))
     args = parser.parse_args()
 
+    lua.execute("log.info('lua runtime is ready to go...')")
+
+    lua.execute("logo()")
+    log.info('version: ' + lua.eval("version"))
+    log.info('by: Younis Bensalah')
+    log.debug("platform: " + platform.platform())
+
     log.info("starting server...")
-
-    foo()
-
+    ThreadingTCPServer.allow_reuse_address = True
     with ThreadingTCPServer((args.host, args.port), ClientHandler) as server:
         host, port = server.server_address
         log.info("listening on {}:{}".format(host, port))
+
+        log.info("initializing lobby...")
+        server.lobby = Lobby()
 
         server_thread = threading.Thread(target=server.serve_forever)
         server_thread.daemon = True
