@@ -50,7 +50,7 @@ function log.info(msg)
     end
 end
 
-function log.warn(msg)
+function log.warning(msg)
     msg = cast_msg(msg)
     for _, v in pairs(msg) do
         print(yellow .. "[!]  " .. v .. reset)

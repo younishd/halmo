@@ -85,7 +85,7 @@ function Engine:move(from, to)
     end)()
 
     if not result then
-        log.warn(string.format("invalid move %d %d to %d %d", from.x, from.y, to.x, to.y))
+        log.warning(string.format("invalid move %d %d to %d %d", from.x, from.y, to.x, to.y))
         return false
     end
     log.info(string.format("move %d %d to %d %d", from.x, from.y, to.x, to.y))
