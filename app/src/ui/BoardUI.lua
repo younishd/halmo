@@ -110,7 +110,6 @@ function BoardUI:draw()
 end
 
 function BoardUI:draw_tile(x, y, color)
-    love.graphics.setColor(1, 1, 1, 1)
     self.canvas:renderTo(function() love.graphics.draw(self.assets[self.color_map[color]], x, y) end)
 end
 
@@ -126,7 +125,7 @@ function BoardUI:update_mouse(x, y)
     end
 end
 
-function BoardUI:mousepressed(x, y, button)
+function BoardUI:mouse_pressed(x, y, button)
     if button == 1 then
         for i, row in ipairs(self.matrix) do
             for j, tile in ipairs(row) do
@@ -144,7 +143,7 @@ function BoardUI:mousepressed(x, y, button)
     end
 end
 
-function BoardUI:mousereleased(x, y, button)
+function BoardUI:mouse_released(x, y, button)
     if button == 1 then
         if not self.drag.active then return end
         for i, row in ipairs(self.matrix) do

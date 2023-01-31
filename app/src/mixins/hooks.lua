@@ -16,11 +16,13 @@ function hooks.init_hooks(self, events)
     end
 end
 
+-- get a call when an event happens
 function hooks.register_hooks(self, event, callback)
     assert(self.hooks[event])
     table.append(self.hooks[event], callback)
 end
 
+-- notify all who registered for an event
 function hooks.notify_hooks(self, event, ...)
     assert(self.hooks[event])
     for _, callback in pairs(self.hooks[event]) do

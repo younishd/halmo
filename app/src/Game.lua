@@ -9,20 +9,30 @@
 local Game = class('Game')
 
 function Game:initialize()
-    local players = 3
-    local pov = 1
+    -- TODO: these values are only known later
+    local number_players = 3
+    local player_pov = 1
 
-    self.engine = Engine(Board(players))
-    self.board = BoardUI(self.engine.board, pov)
+    self.state = 'main_menu'
 
+    self.main_menu = MenuUI({"New Game", "Quit"})
+
+    self.engine = Engine(Board(number_players))
+    self.board = BoardUI(self.engine.board, player_pov)
+
+    -- TODO: hard-coded window dimensions
     self.width = 1024
     self.height = 800
 
     self.positions = {
-        board = { x=0, y=0 }
+        board = { x=0, y=0 },
+        main_menu = { x=0, y=0 }
     }
 
+    -- update ui when board state changes
     self.engine.board:register_hooks('on_update', partial(self.board.update, self.board))
+
+    -- relay moves from ui to engine
     self.board:register_hooks('on_move', partial(self.engine.move, self.engine))
     self.board:register_hooks('on_finish', partial(self.engine.finish, self.engine))
 end
@@ -36,36 +46,55 @@ end
 
 function Game:update(dt)
     local x, y = love.mouse.getPosition()
-    self.board:update_mouse(x - self.positions.board.x, y - self.positions.board.y)
-end
 
-function Game:draw()
-    local board = self.board:draw()
-    self.positions.board.x = (self.width - board:getWidth()) / 2
-    self.positions.board.y = (self.height - board:getHeight()) / 2
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(board, self.positions.board.x, self.positions.board.y)
-end
-
-function Game:textinput(t)
-end
-
-function Game:keypressed(key)
-end
-
-function Game:mousepressed(x, y, button)
-    if button == 1 or button == 'l' then
-        self.board:mousepressed(x - self.positions.board.x, y - self.positions.board.y, 1)
-    elseif button == 2 or button == 'r' then
-        self.board:mousepressed(x - self.positions.board.x, y - self.positions.board.y, 2)
+    if self.state == 'main_menu' then
+        self.main_menu:update_mouse(x - self.positions.main_menu.x, y - self.positions.main_menu.y)
+    elseif self.state == 'in_game' then
+        self.board:update_mouse(x - self.positions.board.x, y - self.positions.board.y)
     end
 end
 
-function Game:mousereleased(x, y, button)
-    if button == 1 or button == 'l' then
-        self.board:mousereleased(x - self.positions.board.x, y - self.positions.board.y, 1)
-    elseif button == 2 or button == 'r' then
-        self.board:mousereleased(x - self.positions.board.x, y - self.positions.board.y, 2)
+function Game:draw()
+    if self.state == 'main_menu' then
+        local canvas = self.main_menu:draw()
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.draw(canvas, self.positions.main_menu.x, self.positions.main_menu.y)
+    elseif self.state == 'in_game' then
+        local canvas = self.board:draw()
+        self.positions.board.x = (self.width - board:getWidth()) / 2
+        self.positions.board.y = (self.height - board:getHeight()) / 2
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.draw(canvas, self.positions.board.x, self.positions.board.y)
+    end
+end
+
+function Game:text_input(t)
+end
+
+function Game:key_pressed(key)
+end
+
+function Game:mouse_pressed(x, y, button)
+    if self.state == 'main_menu' then
+
+    elseif self.state == 'in_game' then
+        if button == 1 or button == 'l' then
+            self.board:mouse_pressed(x - self.positions.board.x, y - self.positions.board.y, 1)
+        elseif button == 2 or button == 'r' then
+            self.board:mouse_pressed(x - self.positions.board.x, y - self.positions.board.y, 2)
+        end
+    end
+end
+
+function Game:mouse_released(x, y, button)
+    if self.state == 'main_menu' then
+
+    elseif self.state == 'in_game' then
+        if button == 1 or button == 'l' then
+            self.board:mouse_released(x - self.positions.board.x, y - self.positions.board.y, 1)
+        elseif button == 2 or button == 'r' then
+            self.board:mouse_released(x - self.positions.board.x, y - self.positions.board.y, 2)
+        end
     end
 end
 

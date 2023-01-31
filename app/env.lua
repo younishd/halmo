@@ -29,6 +29,7 @@ Game                        = require 'Game'
 Engine                      = require 'core.Engine'
 Board                       = require 'core.Board'
 BoardUI                     = require 'ui.BoardUI'
+MenuUI                      = require 'ui.MenuUI'
 logo                        = function() log.info([[
 
 
