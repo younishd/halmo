@@ -5,32 +5,33 @@
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
 --
 --]]
-
-local BoardUI = class('BoardUI')
+local BoardUI = class("BoardUI")
 
 BoardUI:include(mixins.hooks)
 
 function BoardUI:initialize(board, pov)
     assert(board and board:isInstanceOf(Board))
-    assert(type(pov) == 'number')
+    assert(type(pov) == "number")
 
     self.board = board
     self.matrix = board:get_matrix(pov)
     self.pov = pov
 
-    self:init_hooks({
-        'on_move',
-        'on_finish'
-    })
+    self:init_hooks(
+        {
+            "on_move",
+            "on_finish"
+        }
+    )
 
     self.assets = {
-        blue = love.graphics.newImage('assets/blue.png'),
-        empty = love.graphics.newImage('assets/empty.png'),
-        green = love.graphics.newImage('assets/green.png'),
-        purple = love.graphics.newImage('assets/purple.png'),
-        red = love.graphics.newImage('assets/red.png'),
-        white = love.graphics.newImage('assets/white.png'),
-        yellow = love.graphics.newImage('assets/yellow.png')
+        blue = love.graphics.newImage("assets/blue.png"),
+        empty = love.graphics.newImage("assets/empty.png"),
+        green = love.graphics.newImage("assets/green.png"),
+        purple = love.graphics.newImage("assets/purple.png"),
+        red = love.graphics.newImage("assets/red.png"),
+        white = love.graphics.newImage("assets/white.png"),
+        yellow = love.graphics.newImage("assets/yellow.png")
     }
 
     self.style = {
@@ -53,13 +54,13 @@ function BoardUI:initialize(board, pov)
     self.dirty = true
 
     self.color_map = {
-        [0] = 'empty',
-        [1] = 'green',
-        [2] = 'blue',
-        [3] = 'purple',
-        [4] = 'yellow',
-        [5] = 'white',
-        [6] = 'red'
+        [0] = "empty",
+        [1] = "green",
+        [2] = "blue",
+        [3] = "purple",
+        [4] = "yellow",
+        [5] = "white",
+        [6] = "red"
     }
 
     self.drag = {
@@ -76,7 +77,9 @@ function BoardUI:update()
 end
 
 function BoardUI:draw()
-    if not self.dirty then return self.canvas end
+    if not self.dirty then
+        return self.canvas
+    end
 
     self:clear()
 
@@ -85,9 +88,7 @@ function BoardUI:draw()
         local row_width = #row * self.x_step - self.style.tile.margin.x
         local x = (self.width - row_width) / 2
         for j, tile in ipairs(row) do
-            if self.drag.active and
-                    self.drag.tile.x == tile.x and
-                    self.drag.tile.y == tile.y then
+            if self.drag.active and self.drag.tile.x == tile.x and self.drag.tile.y == tile.y then
                 self:draw_tile(x, y, 0)
             else
                 self:draw_tile(x, y, tile.color)
@@ -96,9 +97,10 @@ function BoardUI:draw()
             self.matrix[i][j].draw_y = y
             if self.drag.active then
                 self:draw_tile(
-                        self.drag.x - self.style.tile.radius,
-                        self.drag.y - self.style.tile.radius,
-                        self.drag.tile.color)
+                    self.drag.x - self.style.tile.radius,
+                    self.drag.y - self.style.tile.radius,
+                    self.drag.tile.color
+                )
             end
             x = x + self.x_step
         end
@@ -110,11 +112,19 @@ function BoardUI:draw()
 end
 
 function BoardUI:draw_tile(x, y, color)
-    self.canvas:renderTo(function() love.graphics.draw(self.assets[self.color_map[color]], x, y) end)
+    self.canvas:renderTo(
+        function()
+            love.graphics.draw(self.assets[self.color_map[color]], x, y)
+        end
+    )
 end
 
 function BoardUI:clear()
-    self.canvas:renderTo(function() love.graphics.clear() end)
+    self.canvas:renderTo(
+        function()
+            love.graphics.clear()
+        end
+    )
 end
 
 function BoardUI:update_mouse(x, y)
@@ -129,8 +139,7 @@ function BoardUI:mouse_pressed(x, y, button)
     if button == 1 then
         for i, row in ipairs(self.matrix) do
             for j, tile in ipairs(row) do
-                if tile.color ~= 0 and
-                        BoardUI:radial_collision(tile.draw_x, tile.draw_y, x, y, self.style.tile.radius) then
+                if tile.color ~= 0 and BoardUI:radial_collision(tile.draw_x, tile.draw_y, x, y, self.style.tile.radius) then
                     self.dirty = true
                     self.drag.active = true
                     self.drag.tile = tile
@@ -145,20 +154,24 @@ end
 
 function BoardUI:mouse_released(x, y, button)
     if button == 1 then
-        if not self.drag.active then return end
+        if not self.drag.active then
+            return
+        end
         for i, row in ipairs(self.matrix) do
             for j, tile in ipairs(row) do
                 if BoardUI:radial_collision(tile.draw_x, tile.draw_y, x, y, self.style.tile.radius) then
                     self.dirty = true
                     self.drag.active = false
-                    if self.drag.tile.x == tile.x and self.drag.tile.y == tile.y then return false end
-                    self:notify_hooks('on_move', self.drag.tile, tile)
+                    if self.drag.tile.x == tile.x and self.drag.tile.y == tile.y then
+                        return false
+                    end
+                    self:notify_hooks("on_move", self.drag.tile, tile)
                     return
                 end
             end
         end
     elseif button == 2 then
-        self:notify_hooks('on_finish')
+        self:notify_hooks("on_finish")
     end
 end
 

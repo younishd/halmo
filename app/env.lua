@@ -5,7 +5,6 @@
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
 --
 --]]
-
 package.path = package.path .. ";src/?.lua;lib/?.lua"
 version = (function()
   for v in io.lines("VERSION") do
