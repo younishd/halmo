@@ -32,13 +32,13 @@ end
 function MenuUI:draw()
     local max_width = 0
     local y_offset = 0
-    for i, v in ipairs(self.items) do
+    for _, v in ipairs(self.items) do
         local width = self.font:getWidth(v.text)
         local height = self.font:getHeight(v.text)
-        self.items[i].w = width
-        self.items[i].h = height
-        self.items[i].x = 0
-        self.items[i].y = y_offset
+        v.w = width
+        v.h = height
+        v.x = 0
+        v.y = y_offset
         if max_width < width then
             max_width = width
         end
@@ -47,10 +47,12 @@ function MenuUI:draw()
 
     local canvas = love.graphics.newCanvas(max_width, y_offset)
     for _, v in ipairs(self.items) do
-        love.graphics.setColor(v.r, v.g, v.b, v.a)
         canvas:renderTo(
             function()
+                love.graphics.push()
+                love.graphics.setColor(v.r, v.g, v.b, v.a)
                 love.graphics.print(v.text, self.font, v.x, v.y)
+                love.graphics.pop()
             end
         )
     end
