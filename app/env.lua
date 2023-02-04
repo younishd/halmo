@@ -38,7 +38,6 @@ imap = require "helpers.imap"
 partial = require "helpers.partial"
 times = require "helpers.times"
 kpairs = require "helpers.kpairs"
-Game = require "Game"
 require "loader"
 logo = function()
   log.info(
