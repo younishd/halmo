@@ -5,7 +5,9 @@
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
 --
 --]]
-package.path = package.path .. ";src/?.lua;lib/?.lua"
+package.path = package.path .. ";src/?.lua"
+package.path = '../.luarocks/share/lua/5.4/?.lua;../.luarocks/share/lua/5.4/?/init.lua;' .. package.path
+package.cpath = '../.luarocks/lib/lua/5.4/?.so;' .. package.cpath
 version = (function()
   for v in io.lines("VERSION") do
     return v
@@ -22,7 +24,7 @@ platform = function()
     ({love.graphics.getRendererInfo()})[4]
   )
 end
-class = require "middleclass.middleclass"
+class = require "middleclass"
 local _table = require "helpers.table"
 table.explode = _table.explode
 table.contains = _table.contains
