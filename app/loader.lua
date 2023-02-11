@@ -7,9 +7,12 @@
 --
 --]]
 Game = require "Game"
+Drawable = require "Drawable"
 Scene = require "Scene"
 ButtonUI = require "ui.ButtonUI"
 MenuUI = require "ui.MenuUI"
 BoardUI = require "ui.BoardUI"
+InGame = require "scenes.InGame"
+MainMenu = require "scenes.MainMenu"
 Engine = require "core.Engine"
 Board = require "core.Board"
