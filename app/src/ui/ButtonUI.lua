@@ -5,15 +5,13 @@
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
 --
 --]]
-local ButtonUI = class("ButtonUI")
-
-ButtonUI:include(mixins.hooks)
+local ButtonUI = class("ButtonUI", Drawable)
 
 function ButtonUI:initialize(button)
-    assert(button and button.text and button.id)
+    assert(button and button.text)
 
     self.button = {
-        id = button.id,
+        id = button.id or button.text,
         text = button.text,
         r = button.r or 160 / 255,
         g = button.g or 224 / 255,
@@ -29,7 +27,7 @@ function ButtonUI:initialize(button)
 
     self.font = love.graphics.newFont("assets/fonts/Azonix.otf", 48)
 
-    self:init_hooks(
+    self:init_events(
         {
             "on_press"
         }
@@ -61,7 +59,7 @@ function ButtonUI:draw()
     return canvas
 end
 
-function ButtonUI:update_mouse(x, y)
+function ButtonUI:on_mouse_update(x, y)
     if
         self.button.x <= x and x <= self.button.x + self.button.w and self.button.y <= y and
             y <= self.button.y + self.button.h
@@ -72,16 +70,16 @@ function ButtonUI:update_mouse(x, y)
     end
 end
 
-function ButtonUI:mouse_pressed(x, y, button)
+function ButtonUI:on_mouse_pressed(x, y, button)
 end
 
-function ButtonUI:mouse_released(x, y, button)
+function ButtonUI:on_mouse_released(x, y, button)
     if button == 1 then
         if
             self.button.x <= x and x <= self.button.x + self.button.w and self.button.y <= y and
                 y <= self.button.y + self.button.h
          then
-            self:notify_hooks("on_press", self.button)
+            self:notify("on_press", self.button)
         end
     end
 end

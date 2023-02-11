@@ -5,9 +5,7 @@
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
 --
 --]]
-local MenuUI = class("MenuUI")
-
-MenuUI:include(mixins.hooks)
+local MenuUI = class("MenuUI", Drawable)
 
 function MenuUI:initialize(items)
     assert(items and next(items))
@@ -22,7 +20,7 @@ function MenuUI:initialize(items)
 
     self.font = love.graphics.newFont("assets/fonts/Azonix.otf", 48)
 
-    self:init_hooks(
+    self:init_events(
         {
             "on_select"
         }
@@ -59,7 +57,7 @@ function MenuUI:draw()
     return canvas
 end
 
-function MenuUI:update_mouse(x, y)
+function MenuUI:on_mouse_update(x, y)
     for _, v in ipairs(self.items) do
         if v.x <= x and x <= v.x + v.w and v.y <= y and y <= v.y + v.h then
             v.r, v.g, v.b = 160 / 255, 224 / 255, 63 / 255
@@ -69,14 +67,14 @@ function MenuUI:update_mouse(x, y)
     end
 end
 
-function MenuUI:mouse_pressed(x, y, button)
+function MenuUI:on_mouse_pressed(x, y, button)
 end
 
-function MenuUI:mouse_released(x, y, button)
+function MenuUI:on_mouse_released(x, y, button)
     if button == 1 then
         for _, v in ipairs(self.items) do
             if v.x <= x and x <= v.x + v.w and v.y <= y and y <= v.y + v.h then
-                self:notify_hooks("on_select", v)
+                self:notify("on_select", v.id)
             end
         end
     end

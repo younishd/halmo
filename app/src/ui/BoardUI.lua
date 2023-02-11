@@ -5,9 +5,7 @@
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
 --
 --]]
-local BoardUI = class("BoardUI")
-
-BoardUI:include(mixins.hooks)
+local BoardUI = class("BoardUI", Drawable)
 
 function BoardUI:initialize(board, pov)
     assert(board and board:isInstanceOf(Board))
@@ -17,7 +15,7 @@ function BoardUI:initialize(board, pov)
     self.matrix = board:get_matrix(pov)
     self.pov = pov
 
-    self:init_hooks(
+    self:init_events(
         {
             "on_move",
             "on_finish"
@@ -131,7 +129,7 @@ function BoardUI:clear()
     )
 end
 
-function BoardUI:update_mouse(x, y)
+function BoardUI:on_mouse_update(x, y)
     if self.drag.active then
         self.dirty = true
         self.drag.x = x
@@ -139,7 +137,7 @@ function BoardUI:update_mouse(x, y)
     end
 end
 
-function BoardUI:mouse_pressed(x, y, button)
+function BoardUI:on_mouse_pressed(x, y, button)
     if button == 1 then
         for i, row in ipairs(self.matrix) do
             for j, tile in ipairs(row) do
@@ -156,7 +154,7 @@ function BoardUI:mouse_pressed(x, y, button)
     end
 end
 
-function BoardUI:mouse_released(x, y, button)
+function BoardUI:on_mouse_released(x, y, button)
     if button == 1 then
         if not self.drag.active then
             return
@@ -169,13 +167,13 @@ function BoardUI:mouse_released(x, y, button)
                     if self.drag.tile.x == tile.x and self.drag.tile.y == tile.y then
                         return false
                     end
-                    self:notify_hooks("on_move", self.drag.tile, tile)
+                    self:notify("on_move", self.drag.tile, tile)
                     return
                 end
             end
         end
     elseif button == 2 then
-        self:notify_hooks("on_finish")
+        self:notify("on_finish")
     end
 end
 

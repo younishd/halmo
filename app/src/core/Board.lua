@@ -21,7 +21,7 @@ function Board:initialize(colors, edge)
     self.colors = colors
     self.edge = edge
 
-    self:init_hooks({
+    self:init_events({
         'on_update'
     })
 
@@ -78,7 +78,7 @@ function Board:remove(pos)
 
     self.matrix[pos.y][pos.x] = 0
 
-    self:notify_hooks('on_update')
+    self:notify('on_update')
 end
 
 function Board:place(pos, color)
@@ -88,7 +88,7 @@ function Board:place(pos, color)
 
     self.matrix[pos.y][pos.x] = color
 
-    self:notify_hooks('on_update')
+    self:notify('on_update')
 end
 
 function Board:get(pos)
@@ -106,7 +106,7 @@ function Board:reset()
     self.matrix = {}
     self:generate()
 
-    self:notify_hooks('on_update')
+    self:notify('on_update')
 end
 
 function Board:generate()
