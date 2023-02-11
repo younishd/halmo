@@ -44,6 +44,9 @@ function Scene:draw()
     end
 end
 
+function Scene:update(dt)
+end
+
 function Scene:on_mouse_update(x, y)
     for _, o in ipairs(self.objects) do
         local ox, oy = o.transform(o.x, o.y, o.h, o.w, self.height, self.width)

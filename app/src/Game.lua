@@ -50,6 +50,7 @@ end
 function Game:update(dt)
     local x, y = love.mouse.getPosition()
     self.active_scene:on_mouse_update(x, y)
+    self.active_scene:update(dt)
 end
 
 function Game:draw()

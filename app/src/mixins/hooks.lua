@@ -22,7 +22,7 @@ end
 
 -- get a call when an event happens
 function hooks.on_event(self, event, callback)
-    assert(self._hooks and self._hooks[event])
+    assert(self._hooks and self._hooks[event], "no such event: " .. event)
     assert(type(callback) == "function")
     table.append(self._hooks[event], callback)
     return self
