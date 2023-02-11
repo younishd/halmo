@@ -8,8 +8,19 @@
 local Game = class("Game")
 
 function Game:initialize()
-    -- TODO: states
-    self.state = "main_menu"
+    self.scenes = {
+        main_menu = Scene(
+            MenuUI(
+                {
+                    {id = "new_game", text = "New Game"},
+                    {id = "quit", text = "Quit"}
+                }
+            )
+        ),
+        in_game = Scene()
+    }
+
+    self.active_scene = self.scenes.main_menu
 
     self.main_menu =
         MenuUI(
@@ -43,6 +54,7 @@ end
 
 function Game:update(dt)
     local x, y = love.mouse.getPosition()
+    self.scene:update_mouse(x, y)
 
     if self.state == "main_menu" then
         self.main_menu:update_mouse(x - self.positions.main_menu.x, y - self.positions.main_menu.y)
@@ -54,6 +66,8 @@ function Game:update(dt)
 end
 
 function Game:draw()
+    self.scene:draw()
+
     if self.state == "main_menu" then
         local canvas = self.main_menu:draw()
         self.positions.main_menu.x = (self.width - canvas:getWidth()) / 2
@@ -82,6 +96,12 @@ function Game:key_pressed(key)
 end
 
 function Game:mouse_pressed(x, y, button)
+    if button == 1 or button == "l" then
+        self.scene:mouse_pressed(x, y, 1)
+    elseif button == 2 or button == "r" then
+        self.scene:mouse_pressed(x, y, 2)
+    end
+
     if self.state == "main_menu" then
         if button == 1 or button == "l" then
             self.main_menu:mouse_pressed(x - self.positions.main_menu.x, y - self.positions.main_menu.y, 1)
@@ -99,6 +119,12 @@ function Game:mouse_pressed(x, y, button)
 end
 
 function Game:mouse_released(x, y, button)
+    if button == 1 or button == "l" then
+        self.scene:mouse_released(x, y, 1)
+    elseif button == 2 or button == "r" then
+        self.scene:mouse_released(x, y, 2)
+    end
+
     if self.state == "main_menu" then
         if button == 1 or button == "l" then
             self.main_menu:mouse_released(x - self.positions.main_menu.x, y - self.positions.main_menu.y, 1)
