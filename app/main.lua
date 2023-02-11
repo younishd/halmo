@@ -24,16 +24,16 @@ function love.draw()
     game:draw()
 end
 function love.textinput(t)
-    game:text_input(t)
+    game:on_text_input(t)
 end
 function love.keypressed(key)
-    game:key_pressed(key)
+    game:on_key_pressed(key)
 end
 function love.mousepressed(x, y, button)
-    game:mouse_pressed(x, y, button)
+    game:on_mouse_pressed(x, y, button)
 end
 function love.mousereleased(x, y, button)
-    game:mouse_released(x, y, button)
+    game:on_mouse_released(x, y, button)
 end
 function love.quit()
     return game:quit()
