@@ -9,7 +9,7 @@ local Game = class("Game")
 
 function Game:initialize()
     -- TODO: hard-coded values
-    self.width = 1024
+    self.width = 1280
     self.height = 800
     self.number_players = 3
     self.player_pov = 1
