@@ -56,6 +56,7 @@ function ButtonUI:draw()
             love.graphics.pop()
         end
     )
+    love.graphics.setColor(1, 1, 1, 1)
     return canvas
 end
 

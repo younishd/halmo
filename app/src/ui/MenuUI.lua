@@ -16,6 +16,7 @@ function MenuUI:initialize(items)
     for _, v in ipairs(self.items) do
         v.r, v.g, v.b, v.a = 1, 1, 1, 1
         v.x, v.y, v.w, v.h = -1, -1, -1, -1
+        v.active = true
     end
 
     self.font = love.graphics.newFont("assets/fonts/Azonix.otf", 48)
@@ -48,11 +49,16 @@ function MenuUI:draw()
         canvas:renderTo(
             function()
                 love.graphics.push()
-                love.graphics.setColor(v.r, v.g, v.b, v.a)
+                if v.active then
+                    love.graphics.setColor(160 / 255, 224 / 255, 63 / 255, 1)
+                else
+                    love.graphics.setColor(1, 1, 1, 1)
+                end
                 love.graphics.print(v.text, self.font, v.x, v.y)
                 love.graphics.pop()
             end
         )
+        love.graphics.setColor(1, 1, 1, 1)
     end
     return canvas
 end
@@ -60,9 +66,9 @@ end
 function MenuUI:on_mouse_update(x, y)
     for _, v in ipairs(self.items) do
         if v.x <= x and x <= v.x + v.w and v.y <= y and y <= v.y + v.h then
-            v.r, v.g, v.b = 160 / 255, 224 / 255, 63 / 255
+            v.active = true
         else
-            v.r, v.g, v.b = 1, 1, 1
+            v.active = false
         end
     end
 end
