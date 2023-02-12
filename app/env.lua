@@ -5,7 +5,7 @@
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
 --
 --]]
-package.path = package.path .. ";src/?.lua;../lib/?/?.lua"
+package.path = package.path .. ";src/?.lua;lib/?/?.lua"
 package.path = "../.luarocks/share/lua/5.4/?.lua;../.luarocks/share/lua/5.4/?/init.lua;" .. package.path
 package.cpath = "../.luarocks/lib/lua/5.4/?.so;" .. package.cpath
 version = (function()
