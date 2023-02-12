@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+message Message {
+    oneof type {
+        Status status = 1;
+        Move move = 2;
+        Game game = 3;
+        Player player = 4;
+        Lobby lobby = 5;
+    }
+}
+
+message Status {
+    StatusCode code = 1;
+    string description = 2;
+}
+
+enum StatusCode {
+    OK = 0;
+    ERROR = 1;
+}
+
+message Move {
+    Coord from  = 1;
+    Coord to  = 2;
+}
+
+message Coord {
+    int32 x = 1;
+    int32 y = 2;
+}
+
+message Game {
+    string name = 1;
+    int32 number_players = 2;
+    repeated Player players = 3;
+}
+
+message Player {
+    string name = 1;
+}
+
+message Lobby {
+    repeated Player players = 1;
+    repeated Game games = 2;
+}

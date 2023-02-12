@@ -5,9 +5,12 @@
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
 --
 --]]
+local lua_version = _VERSION:match("%d+%.%d+")
 package.path = package.path .. ";src/?.lua;lib/?/?.lua"
-package.path = "../.luarocks/share/lua/5.4/?.lua;../.luarocks/share/lua/5.4/?/init.lua;" .. package.path
-package.cpath = "../.luarocks/lib/lua/5.4/?.so;" .. package.cpath
+package.path =
+  "../.luarocks/share/lua/" ..
+  lua_version .. "/?.lua;../.luarocks/share/lua/" .. lua_version .. "/?/init.lua;" .. package.path
+package.cpath = "../.luarocks/lib/lua/" .. lua_version .. "/?.so;" .. package.cpath
 version = (function()
   for v in io.lines("VERSION") do
     return v
@@ -41,6 +44,9 @@ imap = require "helpers.imap"
 partial = require "helpers.partial"
 times = require "helpers.times"
 kpairs = require "helpers.kpairs"
+pb = require "pb"
+protoc = require "protoc"
+serpent = require "serpent"
 require "loader"
 logo = function()
   log.info(
