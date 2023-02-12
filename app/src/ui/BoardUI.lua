@@ -112,11 +112,9 @@ end
 function BoardUI:draw_tile(x, y, color)
     self.canvas:renderTo(
         function()
-            love.graphics.push()
             love.graphics.setColor(1, 1, 1, 1)
             love.graphics.setBackgroundColor(0, 0, 0, 0)
             love.graphics.draw(self.assets[self.color_map[color]], x, y)
-            love.graphics.pop()
         end
     )
 end

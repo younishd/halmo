@@ -40,7 +40,7 @@ function Scene:draw()
         o.h, o.w = canvas:getHeight(), canvas:getWidth()
         local ox, oy = o.transform(o.x, o.y, o.h, o.w, self.height, self.width)
         love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.draw(o.object:draw(), ox, oy)
+        love.graphics.draw(canvas, ox, oy)
     end
 end
 

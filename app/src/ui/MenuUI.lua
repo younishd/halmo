@@ -48,17 +48,14 @@ function MenuUI:draw()
     for _, v in ipairs(self.items) do
         canvas:renderTo(
             function()
-                love.graphics.push()
                 if v.active then
                     love.graphics.setColor(160 / 255, 224 / 255, 63 / 255, 1)
                 else
                     love.graphics.setColor(1, 1, 1, 1)
                 end
                 love.graphics.print(v.text, self.font, v.x, v.y)
-                love.graphics.pop()
             end
         )
-        love.graphics.setColor(1, 1, 1, 1)
     end
     return canvas
 end

@@ -42,7 +42,6 @@ function ButtonUI:draw()
     local canvas = love.graphics.newCanvas(self.button.w, self.button.h)
     canvas:renderTo(
         function()
-            love.graphics.push()
             if self.button.disabled then
                 love.graphics.setColor(20 / 255, 20 / 255, 20 / 255, 1)
             else
@@ -53,10 +52,8 @@ function ButtonUI:draw()
                 end
             end
             love.graphics.print(self.button.text, self.font, self.button.x, self.button.y)
-            love.graphics.pop()
         end
     )
-    love.graphics.setColor(1, 1, 1, 1)
     return canvas
 end
 
