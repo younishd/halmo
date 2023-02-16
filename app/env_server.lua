@@ -5,23 +5,12 @@
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
 --
 --]]
-local lua_version = _VERSION:match("%d+%.%d+")
+local lua_version = "5.1"
 package.path = package.path .. ";src/?.lua;lib/?/?.lua"
 package.path =
-  "../.luarocks/share/lua/" ..
-  lua_version .. "/?.lua;../.luarocks/share/lua/" .. lua_version .. "/?/init.lua;" .. package.path
+    "../.luarocks/share/lua/" ..
+    lua_version .. "/?.lua;../.luarocks/share/lua/" .. lua_version .. "/?/init.lua;" .. package.path
 package.cpath = "../.luarocks/lib/lua/" .. lua_version .. "/?.so;" .. package.cpath
-platform = function()
-  return string.format(
-    "platform: %s | %s | %s | %s %s | %s",
-    love.system.getOS(),
-    _VERSION,
-    string.format("LÖVE %d.%d.%d (%s)", love.getVersion()),
-    ({love.graphics.getRendererInfo()})[1],
-    ({love.graphics.getRendererInfo()})[2],
-    ({love.graphics.getRendererInfo()})[4]
-  )
-end
 version = require "version"
 class = require "middleclass"
 json = require "json"
@@ -34,21 +23,17 @@ math.sign = _math.sign
 math.isint = _math.isint
 mixins = {}
 mixins.hooks = require "mixins.hooks"
-log = require "helpers.log"
 map = require "helpers.map"
 imap = require "helpers.imap"
 partial = require "helpers.partial"
 times = require "helpers.times"
 kpairs = require "helpers.kpairs"
 file_exists = require "helpers.file_exists"
-pb = require "pb"
-protoc = require "protoc"
 serpent = require "serpent"
-socket = require "socket"
 require "loader"
 logo = function()
-  log.info(
-    [[
+    log.info(
+        [[
 
 
                              ,,                    ,,  ,,
@@ -62,5 +47,5 @@ logo = function()
 
 
 ]]
-  )
+    )
 end

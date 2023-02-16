@@ -18,15 +18,13 @@ import threading
 from binascii import *
 from hashlib import *
 import lupa
-from lupa import LuaRuntime
 
-import socket as s
 from contextlib import contextmanager
 from pathlib import Path
 from select import select
 from struct import pack, unpack
 
-from halmo_pb2 import *
+import halmo_pb2 as h
 from google.protobuf.any_pb2 import Any
 from google.protobuf.message import DecodeError
 
@@ -41,55 +39,60 @@ class Server:
             host, port = self.client_address
             log.info("client connected: {}:{}".format(host, port))
 
-        def send_msg(self, msg):
-            message = Message()
-            message.Pack(msg)
+            msg = self.recv()
+            if msg.type == h.Player:
+                log.info(f"player {msg.player.name} joined!")
+            else:
+                log.warn("undefined")
+
+        def send(self, payload):
+            message = h.Message()
+            message.Pack(payload)
             payload = message.SerializeToString()
             try:
                 self.request.sendall(pack(">I", len(payload)) + payload)
-            except s.error as e:
+            except socket.error as e:
                 log.error("socket error: {}".format(repr(e)))
                 return False
             return True
 
-        def recv_msg(self, sock):
+        def recv(self):
             def recv_data():
-                nonlocal sock
-                ready = select([sock], [], [])
+                ready = select([self.request], [], [])
                 if not ready[0]:
-                    log.error("select() returned nothing")
+                    log.error("failed to select()")
                     return False
                 header = bytearray()
                 while len(header) < 4:
-                    header += sock.recv(4 - len(header))
+                    header += self.request.recv(4 - len(header))
                     if not header:
                         log.error("failed to recv() header")
                         return False
                 (length,) = unpack(">I", header)
-                data = bytearray()
+                payload = bytearray()
                 bytes_read = 0
                 while bytes_read < length:
-                    buf = sock.recv(length - bytes_read)
+                    buf = self.request.recv(length - bytes_read)
                     if not buf:
                         log.error("failed to recv() data")
                         return False
-                    data += buf
+                    payload += buf
                     bytes_read += len(buf)
-                if len(data) != length:
+                if len(payload) != length:
                     log.error(
-                        "failed to receive message: received {} bytes, expected {} bytes".format(
-                            len(data), length
+                        "received {} bytes, expected {} bytes".format(
+                            len(payload), length
                         )
                     )
                     return False
-                return bytes(data)
+                return bytes(payload)
 
-            data = recv_data()
-            if not data:
+            payload = recv_data()
+            if not payload:
                 return False
-            message = Message()
+            message = h.Message()
             try:
-                message.ParseFromString(data)
+                message.ParseFromString(payload)
             except DecodeError as e:
                 log.error("failed to decode protobuf message: {}".format(repr(e)))
                 return False
@@ -208,100 +211,28 @@ class Server:
 #         log.info("client disconnected: {}".format(self.request.getpeername()))
 
 
-def init_logger(log_file=None, verbosity=1, show_proc_thread_name=False):
-    if hasattr(log, "TRACE"):
-        return
+class CustomFormatter(log.Formatter):
+    RED = "\x1b[31m"
+    GREEN = "\x1b[32m"
+    YELLOW = "\x1b[33m"
+    CYAN = "\x1b[36m"
+    GREY = "\x1b[38m"
+    RESET = "\x1b[0m"
+    FORMAT = "%(message)s"
 
-    class CustomFormatter(log.Formatter):
-        RED = "\x1b[31m"
-        GREEN = "\x1b[32m"
-        YELLOW = "\x1b[33m"
-        CYAN = "\x1b[36m"
-        GREY = "\x1b[38m"
-        RESET = "\x1b[0m"
-        FORMAT = "%(message)s"
-        PROC_THREAD = (
-            "(%(processName)s - %(threadName)s)  " if show_proc_thread_name else ""
-        )
+    def __init__(self):
+        super().__init__()
+        self._formats = {
+            log.DEBUG: self.GREY + "[*]  " + self.FORMAT + self.RESET,
+            log.INFO: self.GREEN + "[+]  " + self.FORMAT + self.RESET,
+            log.WARNING: self.YELLOW + "[!]  " + self.FORMAT + self.RESET,
+            log.ERROR: self.RED + "[-]  " + self.FORMAT + self.RESET,
+        }
 
-        def __init__(self):
-            super().__init__()
-            self._formats = {
-                log.TRACE: self.CYAN
-                + "[/]  "
-                + self.PROC_THREAD
-                + self.FORMAT
-                + self.RESET,
-                log.DEBUG: self.GREY
-                + "[*]  "
-                + self.PROC_THREAD
-                + self.FORMAT
-                + self.RESET,
-                log.INFO: self.GREEN
-                + "[+]  "
-                + self.PROC_THREAD
-                + self.FORMAT
-                + self.RESET,
-                log.WARNING: self.YELLOW
-                + "[!]  "
-                + self.PROC_THREAD
-                + self.FORMAT
-                + self.RESET,
-                log.ERROR: self.RED
-                + "[-]  "
-                + self.PROC_THREAD
-                + self.FORMAT
-                + self.RESET,
-            }
-
-        def format(self, record):
-            log_fmt = self._formats.get(record.levelno)
-            formatter = log.Formatter(log_fmt)
-            return formatter.format(record)
-
-    # register trace level
-    setattr(log, "TRACE", log.DEBUG - 5)
-    setattr(
-        log.getLoggerClass(),
-        "trace",
-        lambda self, m, *args, **kwargs: self.isEnabledFor(log.TRACE)
-        and self._log(log.TRACE, m, args, **kwargs),
-    )
-    setattr(
-        log, "trace", lambda m, *args, **kwargs: log.log(log.TRACE, m, *args, **kwargs)
-    )
-    log.addLevelName(log.TRACE, "TRACE")
-    log.getLogger().setLevel(log.TRACE)
-
-    # register stream handler
-    ch = log.StreamHandler()
-    ch.setFormatter(CustomFormatter())
-    ch.setLevel(log.INFO)
-    if verbosity > 1:
-        ch.setLevel(log.TRACE)
-    elif verbosity > 0:
-        ch.setLevel(log.DEBUG)
-    log.getLogger().addHandler(ch)
-
-    # register file handler
-    if log_file is not None:
-        fh = log.FileHandler(log_file)
-        fh.setLevel(log.DEBUG)
-        fh.setFormatter(
-            log.Formatter(
-                fmt="%(asctime)s [%(levelname)-8s] %(message)s",
-                datefmt="%Y-%m-%d %H:%M:%S",
-            )
-        )
-        log.getLogger().addHandler(fh)
-
-
-# def foo():
-#     log.debug("foo()")
-#     game = Game([1, 2, 3])
-#     game.move({"x": 1, "y": 5}, {"x": 1, "y": 4})
-#     game.finish()
-#     sys.exit(0)
+    def format(self, record):
+        log_fmt = self._formats.get(record.levelno)
+        formatter = log.Formatter(log_fmt)
+        return formatter.format(record)
 
 
 @contextmanager
@@ -315,37 +246,42 @@ def nonblocking(lock):
 
 
 def main():
-    init_logger()
+    # configure logging
+    ch = log.StreamHandler()
+    ch.setFormatter(CustomFormatter())
+    ch.setLevel(log.DEBUG)
+    log.getLogger().addHandler(ch)
+    log.getLogger().setLevel(log.DEBUG)
+    lua_log = log.getLogger("lua")
+    lua_log.setLevel(log.DEBUG)
 
+    # init lua runtime
     global lua
-    lua = LuaRuntime(unpack_returned_tuples=True)
-    # TODO fuck this
-    lua.execute(
-        "package.path = 'app/?.lua;app/src/?.lua;app/src/lib/?/?.lua;../.luarocks/share/lua/5.1/?.lua;../.luarocks/share/lua/5.1/?/init.lua;' .. package.path"
+    lua = lupa.LuaRuntime(unpack_returned_tuples=True)
+    log.debug(
+        f"using {lua.lua_implementation} (compiled with {lupa.LUA_VERSION[0]}.{lupa.LUA_VERSION[1]})"
     )
-    lua.execute("package.cpath = '../.luarocks/lib/lua/5.1/?.so;' .. package.cpath")
-    lua.execute("require 'env'")
-    lua.execute("log = python.eval('logging.getLogger(\"lua\")')")
+    lua.execute("require 'env_server'")
+    lua.execute("log = python.eval('lua_log')")
 
     parser = argparse.ArgumentParser(
         description="Halmö - dedicated server", prog="halmo-server"
     )
-    parser.add_argument("host")
-    parser.add_argument("port", type=int)
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int, default=33333)
     parser.add_argument(
-        "--version", action="version", version="%(prog)s " + lua.eval("version")
+        "--version", action="version", version=lua.eval("version()")
     )
     args = parser.parse_args()
 
-    lua.execute("log.info('lua runtime is ready to go...')")
+    lua.execute("log.debug('lua runtime is armed...')")
     lua.execute("logo()")
-    log.info("version: " + lua.eval("version"))
-    log.info("by: Younis Bensalah")
+    log.debug("version: " + lua.eval("version()"))
+    log.debug("by: Younis Bensalah")
     log.debug("platform: " + platform.platform())
 
-    s = Server("127.0.0.1", 44444)
-    s.start()
-
+    # start server
+    Server(args.host, args.port).start()
 
 if __name__ == "__main__":
     main()
