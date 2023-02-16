@@ -18,6 +18,7 @@ message Status {
 enum StatusCode {
     OK = 0;
     ERROR = 1;
+    ILLEGAL = 2;
 }
 
 message Move {
