@@ -44,7 +44,7 @@ function Game:load()
     log.info("loading game...")
 
     love.window.setMode(self.width, self.height)
-    love.window.setTitle("Halmö (" .. version .. ")")
+    love.window.setTitle("Halmö (" .. version() .. ")")
 end
 
 function Game:update(dt)

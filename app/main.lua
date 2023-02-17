@@ -8,7 +8,7 @@
 require "env"
 
 logo()
-log.info("version: " .. version)
+log.info("version: " .. version())
 log.info("by: Younis Bensalah")
 log.debug(platform())
 
