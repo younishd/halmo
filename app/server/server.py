@@ -37,17 +37,20 @@ class Server:
     class TCPHandler(socketserver.BaseRequestHandler):
         def handle(self):
             host, port = self.client_address
-            log.info("client connected: {}:{}".format(host, port))
+            log.info(f"accepted connection from {self.client_address[0]}:{self.client_address[1]}")
 
             msg = self.recv()
-            if msg.type == h.Player:
+            if msg.WhichOneof("type") == "player":
                 log.info(f"player {msg.player.name} joined!")
+                status = h.Status()
+                status.code = h.StatusCode.OK
+                response = h.Message()
+                response.status.CopyFrom(status)
+                self.send(response)
             else:
-                log.warn("undefined")
+                log.warning("undefined type")
 
-        def send(self, payload):
-            message = h.Message()
-            message.Pack(payload)
+        def send(self, message):
             payload = message.SerializeToString()
             try:
                 self.request.sendall(pack(">I", len(payload)) + payload)
@@ -86,7 +89,6 @@ class Server:
                     )
                     return False
                 return bytes(payload)
-
             payload = recv_data()
             if not payload:
                 return False

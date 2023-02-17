@@ -45,6 +45,7 @@ pb = require "pb"
 protoc = require "protoc"
 serpent = require "serpent"
 socket = require "socket"
+struct = require "struct"
 require "loader"
 logo = function()
   log.info(
