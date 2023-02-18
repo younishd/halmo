@@ -16,13 +16,19 @@ function Game:initialize()
 
     self.scenes = {
         main_menu = MainMenu(self.height, self.width),
+        server_dialog = ServerDialog(self.height, self.width),
         in_game = InGame(self.height, self.width)
     }
 
-    self.scenes.main_menu:on_event(
-        "on_play",
+    self.scenes.main_menu:on_event("on_play", self:transition(self.scenes.server_dialog)):on_event(
+        "on_quit",
+        partial(self.on_quit, self)
+    )
+
+    self.scenes.server_dialog:on_event(
+        "on_connect",
         self:transition(self.scenes.in_game, self.number_players, self.player_pov)
-    ):on_event("on_quit", partial(self.on_quit, self))
+    ):on_event("on_back", self:transition(self.scenes.main_menu))
 
     self.scenes.in_game:on_event("on_quit", self:transition(self.scenes.main_menu))
 

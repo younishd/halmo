@@ -10,6 +10,8 @@ local Scene = class("Scene")
 Scene:include(mixins.hooks)
 
 function Scene:initialize(h, w)
+    assert(h)
+    assert(w)
     self.height, self.width = h, w
     self.objects = {}
 end
@@ -82,6 +84,18 @@ end
 
 function Scene.bottom_right(ox, oy, oh, ow, sh, sw)
     return sw - ow - ox, sh - oh - oy
+end
+
+function Scene.bottom_left(ox, oy, oh, ow, sh, sw)
+    return ox, sh - oh - oy
+end
+
+function Scene.top_right(ox, oy, oh, ow, sh, sw)
+    return sw - ow - ox, oy
+end
+
+function Scene.top_left(ox, oy, oh, ow, sh, sw)
+    return ox, oy
 end
 
 return Scene
