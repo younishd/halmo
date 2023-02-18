@@ -20,7 +20,6 @@ function Scene:on_enter()
 end
 
 function Scene:on_leave()
-    self:clear_events()
     self.objects = {}
 end
 
