@@ -69,6 +69,18 @@ function Scene:on_mouse_released(x, y, button)
     end
 end
 
+function Scene:on_text_input(t)
+    for _, o in ipairs(self.objects) do
+        o.object:on_text_input(t)
+    end
+end
+
+function Scene:on_key_pressed(key)
+    for _, o in ipairs(self.objects) do
+        o.object:on_key_pressed(key)
+    end
+end
+
 function Scene.center(ox, oy, oh, ow, sh, sw)
     return math.floor((sw - ow) / 2), math.floor((sh - oh) / 2)
 end

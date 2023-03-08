@@ -46,6 +46,7 @@ protoc = require "protoc"
 serpent = require "serpent"
 socket = require "socket"
 struct = require "struct"
+utf8 = require "utf8"
 require "loader"
 logo = function()
   log.info(

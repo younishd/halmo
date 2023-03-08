@@ -33,7 +33,7 @@ function ServerDialog:on_enter()
             self:notify("on_connect") -- TODO: pass text as argument
         end
     )
-    --self.server_input = self:add(TextInput({text = "Server..."}), 0, 0, Scene.center)
+    self.server_input = self:add(TextBoxUI({text = "Server..."}), 0, 0, Scene.center)
 end
 
 return ServerDialog

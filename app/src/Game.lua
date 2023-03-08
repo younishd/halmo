@@ -51,6 +51,8 @@ function Game:load()
 
     love.window.setMode(self.width, self.height)
     love.window.setTitle("Halmö (" .. version() .. ")")
+
+    love.keyboard.setKeyRepeat(true)
 end
 
 function Game:update(dt)
@@ -64,11 +66,11 @@ function Game:draw()
 end
 
 function Game:on_text_input(t)
-    -- TODO
+    self.active_scene:on_text_input(t)
 end
 
 function Game:on_key_pressed(key)
-    -- TODO
+    self.active_scene:on_key_pressed(key)
 end
 
 function Game:on_mouse_pressed(x, y, button)

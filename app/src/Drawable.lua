@@ -26,4 +26,10 @@ end
 function Drawable:on_mouse_released(x, y, button)
 end
 
+function Drawable:on_text_input(t)
+end
+
+function Drawable:on_key_pressed(key)
+end
+
 return Drawable
