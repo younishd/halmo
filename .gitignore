@@ -2,3 +2,4 @@
 .directory
 .venv/
 /.luarocks/
+__pycache__/
