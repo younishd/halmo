@@ -27,6 +27,14 @@ function InGame:on_enter(number_players, player_pov)
         partial(self.engine.finish, self.engine)
     )
 
+    self.quit_button =
+        self:add(ButtonUI({text = "Quit"}), 24, 24, Scene.bottom_left):on_event(
+        "on_press",
+        function()
+            self:notify("on_quit")
+        end
+    )
+
     -- relay moves from ui to engine
     local board_ui =
         self:add(BoardUI(self.board, player_pov), 0, 0, Scene.center):on_event(

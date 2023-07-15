@@ -263,7 +263,7 @@ def main():
     log.debug(
         f"using {lua.lua_implementation} (compiled with {lupa.LUA_VERSION[0]}.{lupa.LUA_VERSION[1]})"
     )
-    lua.execute("require 'env_server'")
+    lua.execute("require 'server.env'")
     lua.execute("log = python.eval('lua_log')")
 
     parser = argparse.ArgumentParser(
