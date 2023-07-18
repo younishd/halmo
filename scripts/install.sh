@@ -4,3 +4,4 @@ luarocks --lua-dir="$(brew --prefix)/opt/lua@5.1" --lua-version=5.1 install --tr
 luarocks --lua-dir="$(brew --prefix)/opt/lua@5.1" --lua-version=5.1 install --tree .luarocks luasocket
 luarocks --lua-dir="$(brew --prefix)/opt/lua@5.1" --lua-version=5.1 install --tree .luarocks serpent
 luarocks --lua-dir="$(brew --prefix)/opt/lua@5.1" --lua-version=5.1 install --tree .luarocks lua-struct
+luarocks --lua-dir="$(brew --prefix)/opt/lua@5.1" --lua-version=5.1 install --tree .luarocks utf8
