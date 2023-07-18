@@ -57,7 +57,7 @@ local player = {player = {name = "Neo"}}
 send(sock, player)
 
 local msg = recv(sock)
-assert(msg.type == "status")
+assert(msg and msg.type == "status")
 print(serpent.block(msg))
 assert(msg.status.code == "OK")
 
