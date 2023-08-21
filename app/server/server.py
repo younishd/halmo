@@ -35,20 +35,49 @@ class Server:
         daemon_threads = True
 
     class TCPHandler(socketserver.BaseRequestHandler):
+        def setup(self):
+            pass
+
         def handle(self):
             host, port = self.client_address
-            log.info(f"accepted connection from {self.client_address[0]}:{self.client_address[1]}")
+            log.info(
+                f"client connected: {host}:{port}"
+            )
 
-            msg = self.recv()
-            if msg.WhichOneof("type") == "player":
-                log.info(f"player {msg.player.name} joined!")
-                status = h.Status()
-                status.code = h.StatusCode.OK
-                response = h.Message()
-                response.status.CopyFrom(status)
-                self.send(response)
-            else:
-                log.warning("undefined type")
+            while True:
+                msg = self.recv()
+                if msg is False:
+                    log.warning("client might have left")
+                    return
+
+                if msg.WhichOneof("type") == "player":
+                    log.info(f"player {msg.player.name} joined!")
+                    # TODO handle uniqueness
+                    player = Player(msg.player.name)
+                    self.server._outer._lobby.join(player)
+                    status = h.Status()
+                    status.code = h.StatusCode.OK
+                    response = h.Message()
+                    response.status.CopyFrom(status)
+                    self.send(response)
+
+                elif msg.WhichOneof("type") == "status":
+                    pass
+                elif msg.WhichOneof("type") == "move":
+                    pass
+                elif msg.WhichOneof("type") == "game":
+                    pass
+                elif msg.WhichOneof("type") == "lobby":
+                    lobby = h.Lobby()
+                    players = []
+                    rooms = []
+
+                    lobby.players = players
+                    lobby.rooms = rooms
+
+                else:
+                    log.warning("undefined type")
+                    return
 
         def send(self, message):
             payload = message.SerializeToString()
@@ -89,6 +118,7 @@ class Server:
                     )
                     return False
                 return bytes(payload)
+
             payload = recv_data()
             if not payload:
                 return False
@@ -100,9 +130,13 @@ class Server:
                 return False
             return message
 
+        def finish(self):
+            log.info("client disconnected: {}".format(self.request.getpeername()))
+
     def __init__(self, host, port):
         self._host = host
         self._port = port
+        self._lobby = Lobby()
 
     def start(self):
         with self.ThreadedTCPServer(
@@ -114,103 +148,81 @@ class Server:
         log.info("bye!")
 
 
-# class Player:
-#     def __init__(self, id):
-#         self.name = ""
-#         self.id = id
-#         self.locks = {}
-#         self.locks["self"] = threading.Lock()
+class Player:
+    def __init__(self, id):
+        self.name = ""
+        self.id = id
+        self.locks = {}
+        self.locks["self"] = threading.Lock()
 
-#     def set_name(self, name):
-#         with self.locks["self"]:
-#             old_name = self.name
-#             self.name = name
-#             log.debug(
-#                 "player <{}> changed name from <{}> to <{}>".format(
-#                     self.id, old_name, self.name
-#                 )
-#             )
-
-
-# class Game:
-#     def __init__(self, players):
-#         self.players = players
-#         number_players = len(players)
-#         self.engine = lua.eval("Engine(Board( python.eval('number_players') ))")
-
-#     def move(self, src, dst):
-#         return self.engine.move(self.engine, src, dst)
-
-#     def finish(self):
-#         return self.engine.finish(self.engine)
+    def set_name(self, name):
+        with self.locks["self"]:
+            old_name = self.name
+            self.name = name
+            log.debug(
+                "player <{}> changed name from <{}> to <{}>".format(
+                    self.id, old_name, self.name
+                )
+            )
 
 
-# class Room:
-#     def __init__(self, name, number_players, owner):
-#         self.name = name
-#         self.number_players = number_players
-#         self.owner = owner
-#         self.game = None
-#         self.players = set()
-#         self.locks = {}
-#         self.locks["players"] = threading.Lock()
+class Game:
+    def __init__(self, players):
+        self.players = players
+        number_players = len(players)
+        self.engine = lua.eval("Engine(Board( python.eval('number_players') ))")
 
-#     def join(self, player):
-#         with self.locks["players"]:
-#             if player.id in self.players:
-#                 log.warning(
-#                     "player <{}> already in room <{}>".format(player.name, self.name)
-#                 )
-#                 return False
-#             self.players.add(player)
-#             log.info("<{}> joined room <{}>".format(player.name, self.name))
+    def move(self, src, dst):
+        return self.engine.move(self.engine, src, dst)
+
+    def finish(self):
+        return self.engine.finish(self.engine)
 
 
-# class Lobby:
-#     def __init__(self):
-#         self.rooms = {}
-#         self.players = {}
-#         self.callbacks = {}
-#         self.locks = {}
-#         self.locks["rooms"] = threading.Lock()
-#         self.locks["players"] = threading.Lock()
-#         self.locks["callbacks"] = threading.Lock()
+class Room:
+    def __init__(self, name, number_players, owner):
+        self.name = name
+        self.number_players = number_players
+        self.owner = owner
+        self.game = None
+        self.players = set()
+        self.locks = {}
+        self.locks["players"] = threading.Lock()
 
-#         self.player_counter = 1
-
-#     def join(self, player):
-#         with self.locks["players"]:
-#             player.set_name("Player " + str(self.player_counter))
-#             self.player_counter = self.player_counter + 1
-#             self.players[player.id] = player
-#             log.info("<{}> joined the lobby".format(player.name))
-
-#     def add_room(self, room):
-#         with self.locks["rooms"]:
-#             self.rooms[room.name] = room
-#             log.debug("added room <{}> to lobby".format(room.name))
+    def join(self, player):
+        with self.locks["players"]:
+            if player.id in self.players:
+                log.warning(
+                    "player <{}> already in room <{}>".format(player.name, self.name)
+                )
+                return False
+            self.players.add(player)
+            log.info("<{}> joined room <{}>".format(player.name, self.name))
 
 
-# class ClientHandler(socketserver.BaseRequestHandler):
-#     def setup(self):
-#         pass
+class Lobby:
+    def __init__(self):
+        self.rooms = {}
+        self.players = {}
+        self.callbacks = {}
+        self.locks = {}
+        self.locks["rooms"] = threading.Lock()
+        self.locks["players"] = threading.Lock()
+        self.locks["callbacks"] = threading.Lock()
 
-#     def handle(self):
-#         lobby = self.server.lobby
-#         host, port = self.client_address
-#         log.info("client connected: {}:{}".format(host, port))
+        self.player_counter = 1
 
-#         player = Player(sha1("{}:{}".format(host, port).encode()).hexdigest())
-#         lobby.join(player)
-#         room = Room("Room 1", 16, player)
-#         lobby.add_room(room)
-#         room.join(player)
+    def join(self, player):
+        with self.locks["players"]:
+            player.set_name("Player " + str(self.player_counter))
+            self.player_counter = self.player_counter + 1
+            self.players[player.id] = player
+            log.info("<{}> joined the lobby".format(player.name))
 
-#         while True:
-#             pass
-
-#     def finish(self):
-#         log.info("client disconnected: {}".format(self.request.getpeername()))
+    def add_room(self, room):
+        with self.locks["rooms"]:
+            self.rooms[room.name] = room
+            log.debug("added room <{}> to lobby".format(room.name))
 
 
 class CustomFormatter(log.Formatter):
@@ -271,9 +283,7 @@ def main():
     )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=33333)
-    parser.add_argument(
-        "--version", action="version", version=lua.eval("version()")
-    )
+    parser.add_argument("--version", action="version", version=lua.eval("version()"))
     args = parser.parse_args()
 
     lua.execute("log.debug('lua runtime is armed...')")
@@ -284,6 +294,7 @@ def main():
 
     # start server
     Server(args.host, args.port).start()
+
 
 if __name__ == "__main__":
     main()

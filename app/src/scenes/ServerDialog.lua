@@ -5,6 +5,7 @@
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
 --
 --]]
+
 local ServerDialog = class("ServerDialog", Scene)
 
 function ServerDialog:initialize(...)
@@ -26,14 +27,16 @@ function ServerDialog:on_enter()
             self:notify("on_back")
         end
     )
+    self.server_input = self:add(TextBoxUI({text = "localhost:33333"}), 0, 0, Scene.center)
     self.connect_button =
         self:add(ButtonUI({text = "Connect"}), 24, 24, Scene.bottom_right):on_event(
         "on_press",
         function()
-            self:notify("on_connect") -- TODO: pass text as argument
+            local t = table.explode(":", self.server_input.text)
+            local host, port = t[1], t[2]
+            self:notify("on_connect", host, port)
         end
     )
-    self.server_input = self:add(TextBoxUI({text = "Server..."}), 0, 0, Scene.center)
 end
 
 return ServerDialog

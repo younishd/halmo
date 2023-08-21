@@ -4,7 +4,7 @@ message Message {
     oneof type {
         Status status = 1;
         Move move = 2;
-        Game game = 3;
+        Room room = 3;
         Player player = 4;
         Lobby lobby = 5;
     }
@@ -31,10 +31,9 @@ message Coord {
     int32 y = 2;
 }
 
-message Game {
+message Room {
     string name = 1;
-    int32 number_players = 2;
-    repeated Player players = 3;
+    repeated Player players = 2;
 }
 
 message Player {
@@ -43,5 +42,5 @@ message Player {
 
 message Lobby {
     repeated Player players = 1;
-    repeated Game games = 2;
+    repeated string rooms = 2;
 }

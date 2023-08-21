@@ -26,12 +26,6 @@ brew install lua@5.1 luarocks love
 scripts/install.sh
 ```
 
-Run the game:
-
-```
-( cd app && love . )
-```
-
 Install server dependencies:
 
 ```
@@ -41,8 +35,21 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+
+Change into `app` directory:
+
+```
+cd app
+```
+
+Run the game:
+
+```
+love .
+```
+
 Run the server:
 
 ```
-( cd app && server/server.py )
+server/server.py
 ```

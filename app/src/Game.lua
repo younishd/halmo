@@ -5,6 +5,7 @@
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
 --
 --]]
+
 local Game = class("Game")
 
 function Game:initialize()
@@ -20,15 +21,11 @@ function Game:initialize()
         in_game = InGame(self.height, self.width)
     }
 
-    self.scenes.main_menu:on_event("on_play", self:transition(self.scenes.server_dialog)):on_event(
-        "on_quit",
-        partial(self.on_quit, self)
-    )
+    self.scenes.main_menu:on_event("on_play", self:transition(self.scenes.server_dialog)):on_event("on_quit", partial(
+        self.on_quit, self))
 
-    self.scenes.server_dialog:on_event(
-        "on_connect",
-        self:transition(self.scenes.in_game, self.number_players, self.player_pov)
-    ):on_event("on_back", self:transition(self.scenes.main_menu))
+    self.scenes.server_dialog:on_event("on_connect", partial(self.on_connect, self)):on_event("on_back",
+        self:transition(self.scenes.main_menu))
 
     self.scenes.in_game:on_event("on_quit", self:transition(self.scenes.main_menu))
 
@@ -96,6 +93,18 @@ end
 
 function Game:on_quit()
     love.event.quit()
+end
+
+function Game:on_connect(host, port)
+    log.info("connecting...")
+    self.connection = Connection(host, port)
+
+    -- TODO
+    self:transition(self.scenes.in_game, self.number_players, self.player_pov)()
+end
+
+function Game:on_join()
+    self:transition(self.scenes.in_game, self.number_players, self.player_pov)()
 end
 
 return Game
