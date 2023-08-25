@@ -27,7 +27,10 @@ function Game:initialize()
     self.scenes.server_dialog:on_event("on_connect", partial(self.on_connect, self)):on_event("on_back",
         self:transition(self.scenes.main_menu))
 
-    self.scenes.in_game:on_event("on_quit", self:transition(self.scenes.main_menu))
+    self.scenes.lobby:on_event("on_join", partial(self.on_join, self)):on_event("on_back", self:transition(self.scenes.server_dialog))
+
+    self.scenes.in_game:on_event("on_quit", self:transition(self.scenes.lobby))
+
 
     self.active_scene = self.scenes.main_menu
     self.active_scene:on_enter()
@@ -99,10 +102,11 @@ function Game:on_connect(host, port)
     log.info("connecting...")
     self.connection = Connection(host, port)
     -- TODO: check connection status etc.
-    self:transition(self.scenes.lobby)
+    self:transition(self.scenes.lobby)()
 end
 
-function Game:on_join()
+function Game:on_join(room)
+    log.info("joining '" .. room .. "'")
     self:transition(self.scenes.in_game, self.number_players, self.player_pov)()
 end
 
