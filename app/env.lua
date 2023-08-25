@@ -1,10 +1,10 @@
---[[
---
+----
+---
 -- Halmö
 --
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
---
---]]
+---
+----
 local lua_version = _VERSION:match("%d+%.%d+")
 package.path = package.path .. ";src/?.lua;lib/?/?.lua"
 package.path =

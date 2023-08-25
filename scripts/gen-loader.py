@@ -17,13 +17,13 @@ if __name__ == "__main__":
     with open(loader_file, "a") as f:
         f.truncate(0)
         f.write("""
---[[
---
+----
+---
 -- Halmö
 --
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
---
---]]
+---
+----
 """)
         for i in items:
             f.write("{} = require \"{}\"\n".format(*i))

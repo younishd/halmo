@@ -1,10 +1,10 @@
---[[
---
+----
+---
 -- Halmö
 --
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
---
---]]
+---
+----
 
 local Game = class("Game")
 
@@ -18,7 +18,8 @@ function Game:initialize()
     self.scenes = {
         main_menu = MainMenu(self.height, self.width),
         server_dialog = ServerDialog(self.height, self.width),
-        in_game = InGame(self.height, self.width)
+        in_game = InGame(self.height, self.width),
+        lobby = Lobby(self.height, self.width)
     }
 
     self.scenes.main_menu:on_event("on_play", self:transition(self.scenes.server_dialog)):on_event("on_quit", partial(
@@ -98,9 +99,8 @@ end
 function Game:on_connect(host, port)
     log.info("connecting...")
     self.connection = Connection(host, port)
-
-    -- TODO
-    self:transition(self.scenes.in_game, self.number_players, self.player_pov)()
+    -- TODO: check connection status etc.
+    self:transition(self.scenes.lobby)
 end
 
 function Game:on_join()

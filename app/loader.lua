@@ -1,11 +1,11 @@
 
---[[
---
+----
+---
 -- Halmö
 --
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
---
---]]
+---
+----
 Game = require "Game"
 Drawable = require "Drawable"
 Scene = require "Scene"

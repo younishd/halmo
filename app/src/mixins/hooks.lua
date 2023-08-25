@@ -1,10 +1,10 @@
---[[
---
+----
+---
 -- Halmö
 --
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
---
---]]
+---
+----
 local hooks = {}
 
 function hooks.init_events(self, events)
