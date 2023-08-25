@@ -26,8 +26,7 @@ function Lobby:on_enter()
             self:notify("on_back")
         end
     )
-    --self.server_input = self:add(TextBoxUI({text = "localhost:33333"}), 0, 0, Scene.center)
-    -- TODO
+    -- TODO: start with empty room list then poll during on_update
     self.room_list = self:add(ListUI({{text = "room 1"}, {text = "room 2"}, {text = "room 3"}}), 0, 0, Scene.center)
     self.join_button =
         self:add(ButtonUI({text = "Join"}), 24, 24, Scene.bottom_right):on_event(
