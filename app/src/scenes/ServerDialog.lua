@@ -5,7 +5,6 @@
 -- (c) 2015-2023 Younis Bensalah <younis.bensalah@gmail.com>
 ---
 ----
-
 local ServerDialog = class("ServerDialog", Scene)
 
 function ServerDialog:initialize(...)
