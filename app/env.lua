@@ -43,6 +43,10 @@ kpairs = require "helpers.kpairs"
 file_exists = require "helpers.file_exists"
 pb = require "pb"
 protoc = require "protoc"
+local f = assert(io.open("../halmo.proto", "r"))
+local content = f:read("*all")
+f:close()
+protoc:load(content)
 serpent = require "serpent"
 socket = require "socket"
 struct = require "struct"

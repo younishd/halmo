@@ -14,6 +14,9 @@ function Game:initialize()
     self.number_players = 3
     self.player_pov = 1
 
+    -- player
+    self.player_name = "neo"
+
     self.scenes = {
         main_menu = MainMenu(self.height, self.width),
         server_dialog = ServerDialog(self.height, self.width),
@@ -102,11 +105,17 @@ function Game:on_connect(host, port)
     log.info("connecting...")
     self.connection = Connection(host, port)
     -- TODO: check connection status etc.
+
+    local player = {player = {name = self.player_name}}
+    self.connection:send(player)
+    local reply = self.connection:recv()
+    log.debug(reply)
+
     self:transition(self.scenes.lobby)()
 end
 
 function Game:on_join(room)
-    log.info("joining '" .. room .. "'")
+    log.info("joining <" .. room .. ">")
     self:transition(self.scenes.in_game, self.number_players, self.player_pov)()
 end
 

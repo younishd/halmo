@@ -41,7 +41,7 @@ class Server:
         def handle(self):
             host, port = self.client_address
             log.info(
-                f"client connected: {host}:{port}"
+                f"client <{host}:{port}> connected"
             )
 
             while True:
@@ -51,8 +51,7 @@ class Server:
                     return
 
                 if msg.WhichOneof("type") == "player":
-                    log.info(f"player {msg.player.name} joined!")
-                    # TODO handle uniqueness
+                    # TODO: handle uniqueness
                     player = Player(msg.player.name)
                     self.server._outer._lobby.join(player)
                     status = h.Status()
@@ -149,21 +148,10 @@ class Server:
 
 
 class Player:
-    def __init__(self, id):
-        self.name = ""
-        self.id = id
+    def __init__(self, name):
+        self.name = name
         self.locks = {}
         self.locks["self"] = threading.Lock()
-
-    def set_name(self, name):
-        with self.locks["self"]:
-            old_name = self.name
-            self.name = name
-            log.debug(
-                "player <{}> changed name from <{}> to <{}>".format(
-                    self.id, old_name, self.name
-                )
-            )
 
 
 class Game:
@@ -214,10 +202,8 @@ class Lobby:
 
     def join(self, player):
         with self.locks["players"]:
-            player.set_name("Player " + str(self.player_counter))
-            self.player_counter = self.player_counter + 1
-            self.players[player.id] = player
-            log.info("<{}> joined the lobby".format(player.name))
+            self.players[player.name] = player
+            log.info("player <{}> joined the lobby".format(player.name))
 
     def add_room(self, room):
         with self.locks["rooms"]:
