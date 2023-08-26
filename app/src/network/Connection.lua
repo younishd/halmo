@@ -9,7 +9,20 @@ local Connection = class("Connection")
 
 function Connection:initialize(host, port)
     self.sock = assert(socket.tcp())
-    self.sock:connect(host, port)
+    self.host, self.port = host, port
+end
+
+function Connection:connect()
+    local ret, err = self.sock:connect(self.host, self.port)
+    if ret == nil then
+        log.warning(err)
+        return false
+    end
+    return true
+end
+
+function Connection:disconnect()
+    self.sock:close(host, port)
 end
 
 function Connection:send(msg)

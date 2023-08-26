@@ -13,18 +13,18 @@ function ButtonUI:initialize(button)
     self.id = button.id or button.text
     self.text = button.text
 
+    self.font = love.graphics.newFont("assets/fonts/Azonix.otf", 48)
+
     self.r = button.r or 160 / 255
     self.g = button.g or 224 / 255
     self.b = button.b or 63 / 255
     self.a = button.a or 1
-    self.x = -1
-    self.y = -1
-    self.w = -1
-    self.h = -1
+    self.x = 0
+    self.y = 0
+    self.w = self.font:getWidth(self.text)
+    self.h = self.font:getHeight(self.text)
     self.disabled = button.disabled or false
     self.active = false
-
-    self.font = love.graphics.newFont("assets/fonts/Azonix.otf", 48)
 
     self:init_events(
         {
@@ -34,10 +34,10 @@ function ButtonUI:initialize(button)
 end
 
 function ButtonUI:draw()
-    self.w = self.font:getWidth(self.text)
-    self.h = self.font:getHeight(self.text)
     self.x = 0
     self.y = 0
+    self.w = self.font:getWidth(self.text)
+    self.h = self.font:getHeight(self.text)
     local canvas = love.graphics.newCanvas(self.w, self.h)
     canvas:renderTo(
         function()

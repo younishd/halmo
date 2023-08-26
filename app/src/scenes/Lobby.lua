@@ -13,7 +13,8 @@ function Lobby:initialize(...)
     self:init_events(
         {
             "on_back",
-            "on_join"
+            "on_join",
+            "on_new"
         }
     )
 end
@@ -36,6 +37,12 @@ function Lobby:on_enter()
             if room ~= nil then
                 self:notify("on_join", room.text)
             end
+        end
+    )
+    self.new_button = self:add(ButtonUI({text = "New"}), self.join_button.w + 2 * 24, 24, Scene.bottom_right):on_event(
+        "on_press",
+        function()
+            self:notify("on_new")
         end
     )
 end

@@ -21,19 +21,49 @@ function Game:initialize()
         main_menu = MainMenu(self.height, self.width),
         server_dialog = ServerDialog(self.height, self.width),
         in_game = InGame(self.height, self.width),
-        lobby = Lobby(self.height, self.width)
+        lobby = Lobby(self.height, self.width),
+        new_room = NewRoom(self.height, self.width)
     }
 
-    self.scenes.main_menu:on_event("on_play", self:transition(self.scenes.server_dialog)):on_event("on_quit", partial(
-        self.on_quit, self))
+    self.scenes.main_menu:on_event(
+        "on_play",
+        self:transition(self.scenes.server_dialog)
+    ):on_event(
+        "on_quit",
+        partial(self.on_quit, self)
+    )
 
-    self.scenes.server_dialog:on_event("on_connect", partial(self.on_connect, self)):on_event("on_back",
-        self:transition(self.scenes.main_menu))
+    self.scenes.server_dialog:on_event(
+        "on_connect",
+        partial(self.on_connect, self)
+    ):on_event(
+        "on_back",
+        self:transition(self.scenes.main_menu)
+    )
 
-    self.scenes.lobby:on_event("on_join", partial(self.on_join, self)):on_event("on_back", self:transition(self.scenes.server_dialog))
+    self.scenes.lobby:on_event(
+        "on_join",
+        partial(self.on_join_room, self)
+    ):on_event(
+        "on_new",
+        self:transition(self.scenes.new_room)
+    ):on_event(
+        "on_back",
+        partial(self.on_disconnect, self)
+    )
 
-    self.scenes.in_game:on_event("on_quit", self:transition(self.scenes.lobby))
+    self.scenes.new_room:on_event(
+        "on_create",
+        partial(self.on_create_room, self)
+    ):on_event(
+        "on_back",
+        self:transition(self.scenes.lobby)
+    )
 
+    self.scenes.in_game:on_event(
+        "on_quit",
+        self:transition(self.scenes.lobby)
+    )
 
     self.active_scene = self.scenes.main_menu
     self.active_scene:on_enter()
@@ -104,7 +134,9 @@ end
 function Game:on_connect(host, port)
     log.info("connecting...")
     self.connection = Connection(host, port)
-    -- TODO: check connection status etc.
+    if not self.connection:connect() then
+        return
+    end
 
     local player = {player = {name = self.player_name}}
     self.connection:send(player)
@@ -114,8 +146,19 @@ function Game:on_connect(host, port)
     self:transition(self.scenes.lobby)()
 end
 
-function Game:on_join(room)
+function Game:on_disconnect()
+    log.info("disconnecting...")
+    self.connection:disconnect()
+    self:transition(self.scenes.server_dialog)()
+end
+
+function Game:on_join_room(room)
     log.info("joining <" .. room .. ">")
+    self:transition(self.scenes.in_game, self.number_players, self.player_pov)()
+end
+
+function Game:on_create_room(number_players)
+    self.number_players = number_players
     self:transition(self.scenes.in_game, self.number_players, self.player_pov)()
 end
 
