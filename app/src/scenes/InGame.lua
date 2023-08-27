@@ -44,8 +44,8 @@ function InGame:on_enter(number_players, player_pov)
         partial(self.engine.finish, self.engine)
     )
 
-    -- update ui when board state changes
-    self.board:on_event("on_update", partial(board_ui.update, board_ui))
+    -- refresh ui when board state changes
+    self.board:on_event("on_update", partial(board_ui.refresh, board_ui))
 end
 
 function InGame:update(dt)

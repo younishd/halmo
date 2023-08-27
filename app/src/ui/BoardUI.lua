@@ -69,7 +69,7 @@ function BoardUI:initialize(board, pov)
     }
 end
 
-function BoardUI:update()
+function BoardUI:refresh()
     self.matrix = self.board:get_matrix(self.pov)
     self.dirty = true
 end
@@ -159,9 +159,9 @@ function BoardUI:on_mouse_released(x, y, button)
         end
         for i, row in ipairs(self.matrix) do
             for j, tile in ipairs(row) do
+                self.dirty = true
+                self.drag.active = false
                 if BoardUI:radial_collision(tile.draw_x, tile.draw_y, x, y, self.style.tile.radius) then
-                    self.dirty = true
-                    self.drag.active = false
                     if self.drag.tile.x == tile.x and self.drag.tile.y == tile.y then
                         return false
                     end
