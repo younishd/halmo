@@ -36,7 +36,7 @@ function Engine:move(from, to)
         end
 
         local direction = {x = to.x - from.x, y = to.y - from.y}
-        log.debug(string.format("direction: %d %d", direction.x, direction.y))
+        -- log.debug(string.format("direction: %d %d", direction.x, direction.y))
 
         if direction.x ~= 0 and direction.y ~= 0 and direction.x ~= direction.y then
             return false
@@ -74,7 +74,7 @@ function Engine:move(from, to)
 
         local pivot = {x = from.x + direction.x / 2, y = from.y + direction.y / 2}
         assert(math.isint(pivot.x) and math.isint(pivot.y))
-        log.debug(string.format("pivot: %d %d", pivot.x, pivot.y))
+        -- log.debug(string.format("pivot: %d %d", pivot.x, pivot.y))
         if self.board:get(pivot) == 0 then
             return false
         end
@@ -107,10 +107,10 @@ function Engine:move(from, to)
     end)()
 
     if not result then
-        log.warning(string.format("invalid move %d %d to %d %d", from.x, from.y, to.x, to.y))
+        log.debug(string.format("invalid move %d %d to %d %d", from.x, from.y, to.x, to.y))
         return false
     end
-    log.info(string.format("move %d %d to %d %d", from.x, from.y, to.x, to.y))
+    log.debug(string.format("move %d %d to %d %d", from.x, from.y, to.x, to.y))
     self.board:remove(from)
     self.board:place(to, self.turn)
     return true
@@ -150,7 +150,7 @@ function Engine:is_finishable()
 end
 
 function Engine:reset()
-    log.debug("resetting...")
+    log.debug("resetting engine...")
     self.board:reset()
     self.turn = 1
     self.current_move = {src = {x = 0, y = 0}, dst = {x = 0, y = 0}, step = false}
@@ -167,7 +167,7 @@ end
 
 function Engine:next_turn()
     self.turn = 1 + self.turn % self.board:get_colors()
-    log.debug(string.format("turn: %d", self.turn))
+    -- log.debug(string.format("turn: %d", self.turn))
 end
 
 return Engine

@@ -17,6 +17,8 @@ function Lobby:initialize(...)
             "on_new"
         }
     )
+
+    self.rooms = {}
 end
 
 function Lobby:on_enter()
@@ -28,7 +30,7 @@ function Lobby:on_enter()
         end
     )
     -- TODO: start with empty room list then poll during on_update
-    self.room_list = self:add(ListUI({{text = "room 1"}, {text = "room 2"}, {text = "room 3"}}), 0, 0, Scene.center)
+    self.room_list = self:add(ListUI(self.rooms), 0, 0, Scene.center)
     self.join_button =
         self:add(ButtonUI({text = "Join"}), 24, 24, Scene.bottom_right):on_event(
         "on_press",
@@ -45,6 +47,10 @@ function Lobby:on_enter()
             self:notify("on_new")
         end
     )
+end
+
+function Lobby:update_rooms(rooms)
+    self.rooms = imap(function(v) return {text = v.name} end, rooms)
 end
 
 return Lobby

@@ -12,7 +12,8 @@ function InGame:initialize(...)
 
     self:init_events(
         {
-            "on_quit"
+            "on_quit",
+            "on_move"
         }
     )
 end
@@ -31,7 +32,7 @@ function InGame:on_enter(number_players, player_pov)
         self:add(ButtonUI({text = "Quit"}), 24, 24, Scene.bottom_left):on_event(
         "on_press",
         function()
-        self:notify("on_quit")
+            self:notify("on_quit")
         end
     )
 
@@ -39,7 +40,8 @@ function InGame:on_enter(number_players, player_pov)
     local board_ui =
         self:add(BoardUI(self.board, player_pov), 0, 0, Scene.center):on_event(
         "on_move",
-        partial(self.engine.move, self.engine)):on_event(
+        partial(self.on_move, self)
+    ):on_event(
         "on_finish",
         partial(self.engine.finish, self.engine)
     )
@@ -50,6 +52,12 @@ end
 
 function InGame:update(dt)
     self.finish_button:set_disabled(not self.engine:is_finishable())
+end
+
+function InGame:on_move(from, to)
+    if self.engine:move(from, to) then
+        self:notify("on_move", from, to)
+    end
 end
 
 return InGame

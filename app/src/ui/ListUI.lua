@@ -21,6 +21,11 @@ function ListUI:initialize(items)
     self.font = love.graphics.newFont("assets/fonts/Quicksand.otf", 48)
 end
 
+function ListUI:set_items(items)
+    self.items = items
+    self.selected = math.min(1, #items)
+end
+
 function ListUI:draw()
     local max_width = 0
     local y_offset = 0
@@ -42,7 +47,8 @@ function ListUI:draw()
         self.selected = 1
     end
 
-    local canvas = love.graphics.newCanvas(max_width, y_offset)
+    -- empty list is rendered as empty 1x1 canvas
+    local canvas = love.graphics.newCanvas(math.max(max_width, 1), math.max(y_offset, 1))
     for i, v in ipairs(self.items) do
         canvas:renderTo(
             function()

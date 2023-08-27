@@ -40,12 +40,14 @@ class Server:
 
         def handle(self):
             host, port = self.client_address
-            log.info(
-                f"client <{host}:{port}> connected"
-            )
+            log.info(f"client <{host}:{port}> connected")
 
             while True:
-                msg = self.recv()
+                try:
+                    msg = self.recv()
+                except ConnectionResetError:
+                    log.warning("connection reset by peer")
+                    return
                 if msg is False:
                     log.warning("client might have left")
                     return
@@ -63,16 +65,38 @@ class Server:
                 elif msg.WhichOneof("type") == "status":
                     pass
                 elif msg.WhichOneof("type") == "move":
-                    pass
+                    log.debug(msg)
+                    status = h.Status()
+                    status.code = h.StatusCode.OK
+                    response = h.Message()
+                    response.status.CopyFrom(status)
+                    self.send(response)
                 elif msg.WhichOneof("type") == "game":
                     pass
                 elif msg.WhichOneof("type") == "lobby":
                     lobby = h.Lobby()
-                    players = []
-                    rooms = []
 
-                    lobby.players = players
-                    lobby.rooms = rooms
+                    players = []
+                    for p in self.server._outer._lobby.players:
+                        player = h.Player()
+                        player.name = p
+                        players += [player]
+
+                    rooms = []
+                    for r in self.server._outer._lobby.rooms:
+                        room = h.Room()
+                        room.name = r
+                        rooms += [room]
+
+                    # this is how you assign a repeated field - don't ask
+                    log.debug(players)
+                    log.debug(rooms)
+                    lobby.players.extend(players)
+                    lobby.rooms.extend(rooms)
+
+                    response = h.Message()
+                    response.lobby.CopyFrom(lobby)
+                    self.send(response)
 
                 else:
                     log.warning("undefined type")
@@ -130,7 +154,8 @@ class Server:
             return message
 
         def finish(self):
-            log.info("client disconnected: {}".format(self.request.getpeername()))
+            host, port = self.client_address
+            log.info(f"client <{host}:{port}> disconnected")
 
     def __init__(self, host, port):
         self._host = host
@@ -150,8 +175,6 @@ class Server:
 class Player:
     def __init__(self, name):
         self.name = name
-        self.locks = {}
-        self.locks["self"] = threading.Lock()
 
 
 class Game:
@@ -197,8 +220,6 @@ class Lobby:
         self.locks["rooms"] = threading.Lock()
         self.locks["players"] = threading.Lock()
         self.locks["callbacks"] = threading.Lock()
-
-        self.player_counter = 1
 
     def join(self, player):
         with self.locks["players"]:

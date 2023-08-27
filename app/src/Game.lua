@@ -63,6 +63,9 @@ function Game:initialize()
     self.scenes.in_game:on_event(
         "on_quit",
         self:transition(self.scenes.lobby)
+    ):on_event(
+        "on_move",
+        partial(self.on_move, self)
     )
 
     self.active_scene = self.scenes.main_menu
@@ -143,6 +146,12 @@ function Game:on_connect(host, port)
     local reply = self.connection:recv()
     log.debug(reply)
 
+    local lobby = { lobby = {} }
+    self.connection:send(lobby)
+    local reply = self.connection:recv()
+    log.debug(reply)
+    self.scenes.lobby:update_rooms(reply.lobby.rooms)
+
     self:transition(self.scenes.lobby)()
 end
 
@@ -160,6 +169,13 @@ end
 function Game:on_create_room(number_players)
     self.number_players = number_players
     self:transition(self.scenes.in_game, self.number_players, self.player_pov)()
+end
+
+function Game:on_move(from, to)
+    local move = {move = {from = { x = from.x, y = from.y }, to = { x = to.x, y = to.y }}}
+    self.connection:send(move)
+    -- local reply = self.connection:recv()
+    -- log.debug(reply)
 end
 
 return Game
