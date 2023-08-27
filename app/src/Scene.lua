@@ -85,11 +85,11 @@ function Scene.center(ox, oy, oh, ow, sh, sw)
     return math.floor((sw - ow) / 2), math.floor((sh - oh) / 2)
 end
 
-function Scene.center_h(ox, oy, oh, ow, sh, sw)
+function Scene.center_v(ox, oy, oh, ow, sh, sw)
     return ox, math.floor((sh - oh) / 2)
 end
 
-function Scene.center_v(ox, oy, oh, ow, sh, sw)
+function Scene.center_h(ox, oy, oh, ow, sh, sw)
     return math.floor((sw - ow) / 2), oy
 end
 

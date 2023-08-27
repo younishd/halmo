@@ -30,6 +30,8 @@ function MainMenu:on_enter()
         0,
         Scene.center
     ):on_event("on_select", partial(self.on_select, self))
+
+    self:add(LabelUI({text = "Halmö"}), 0, 24, Scene.center_h)
 end
 
 function MainMenu:on_select(id)
