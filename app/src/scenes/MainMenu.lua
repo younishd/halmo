@@ -7,7 +7,7 @@
 ----
 local MainMenu = class("MainMenu", Scene)
 
-function MainMenu:initialize(...)
+function MainMenu:initialize(ver, ...)
     Scene.initialize(self, ...)
 
     self:init_events(
@@ -16,6 +16,8 @@ function MainMenu:initialize(...)
             "on_quit"
         }
     )
+
+    self.version = ver
 end
 
 function MainMenu:on_enter()
@@ -31,7 +33,8 @@ function MainMenu:on_enter()
         Scene.center
     ):on_event("on_select", partial(self.on_select, self))
 
-    self:add(LabelUI({text = "Halmö"}), 0, 24, Scene.center_h)
+    self:add(LabelUI({text = "Halmö", size = 80}), 0, 80, Scene.center_h)
+    self:add(LabelUI({text = self.version}), 8, 8, Scene.bottom_right)
 end
 
 function MainMenu:on_select(id)

@@ -10,7 +10,8 @@ local LabelUI = class("LabelUI", Drawable)
 function LabelUI:initialize(v)
     assert(v and v.text)
     self.text = v.text
-    self.font = love.graphics.newFont("assets/fonts/Quicksand.otf", 24)
+    self.size = v.size or 24
+    self.font = love.graphics.newFont("assets/fonts/Quicksand.otf", self.size)
     self.r, self.g, self.b, self.a = 1, 1, 1, 1
     self.x = 0
     self.y = 0

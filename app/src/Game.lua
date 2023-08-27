@@ -14,11 +14,11 @@ function Game:initialize()
     self.number_players = 3
     self.player_pov = 1
 
-    -- player
+    -- TODO: player
     self.player_name = "neo"
 
     self.scenes = {
-        main_menu = MainMenu(self.height, self.width),
+        main_menu = MainMenu(version(), self.height, self.width),
         server_dialog = ServerDialog(self.height, self.width),
         in_game = InGame(self.height, self.width),
         lobby = Lobby(self.height, self.width),
@@ -83,7 +83,7 @@ function Game:load()
     log.info("loading game...")
 
     love.window.setMode(self.width, self.height)
-    love.window.setTitle("Halmö (" .. version() .. ")")
+    love.window.setTitle("Halmö")
 
     love.keyboard.setKeyRepeat(true)
 end
