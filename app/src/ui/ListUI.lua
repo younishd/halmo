@@ -18,7 +18,7 @@ function ListUI:initialize(items)
         v.x, v.y, v.w, v.h = -1, -1, -1, -1
     end
 
-    self.font = love.graphics.newFont("assets/fonts/Azonix.otf", 48)
+    self.font = love.graphics.newFont("assets/fonts/Quicksand.otf", 48)
 end
 
 function ListUI:draw()

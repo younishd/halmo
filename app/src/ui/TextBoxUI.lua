@@ -15,7 +15,7 @@ function TextBoxUI:initialize(v)
     self.w, self.h = -1, -1
     self.disabled = false
     self.active = false
-    self.font = love.graphics.newFont("assets/fonts/Azonix.otf", 24)
+    self.font = love.graphics.newFont("assets/fonts/Quicksand.otf", 24)
 end
 
 function TextBoxUI:get_text()

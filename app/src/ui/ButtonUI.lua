@@ -13,7 +13,7 @@ function ButtonUI:initialize(button)
     self.id = button.id or button.text
     self.text = button.text
 
-    self.font = love.graphics.newFont("assets/fonts/Azonix.otf", 48)
+    self.font = love.graphics.newFont("assets/fonts/Quicksand.otf", 48)
 
     self.r = button.r or 160 / 255
     self.g = button.g or 224 / 255

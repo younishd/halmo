@@ -19,7 +19,7 @@ function MenuUI:initialize(items)
         v.active = true
     end
 
-    self.font = love.graphics.newFont("assets/fonts/Azonix.otf", 48)
+    self.font = love.graphics.newFont("assets/fonts/Quicksand.otf", 48)
 
     self:init_events(
         {
